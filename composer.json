@@ -1,0 +1,29 @@
+{
+    "name": "detain/myadmin-vps-vps-addon",
+    "type": "myadmin-plugin",
+    "description": "Vps Addon for VPS Module in MyAdmin",
+    "keywords": ["vps","administration","license"],
+    "license": "LGPL-2.1",
+    "authors": [
+        {
+            "name": "Joe Huss",
+            "homepage": "https://my.interserver.net/"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/detain/myadmin-plugin-installer"
+        }
+    ],
+    "require": {
+        "php": ">=5.0.0",
+        "ext-soap": "*",
+	"symfony/event-dispatcher": "*",
+	"detain/myadmin-plugin-installer": "dev-master",
+	"detain/vps-licensing": "*"
+    },
+    "autoload": {
+        "psr-4": {"Detain\\MyAdminVpsVps\": "src/"}
+    }
+}
