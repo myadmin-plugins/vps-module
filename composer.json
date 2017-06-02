@@ -1,7 +1,7 @@
 {
-    "name": "detain/myadmin-vps-vps-addon",
+    "name": "detain/myadmin-vps",
     "type": "myadmin-plugin",
-    "description": "Vps Addon for VPS Module in MyAdmin",
+    "description": "VPS Module for MyAdmin",
     "keywords": ["vps","administration","license"],
     "license": "LGPL-2.1",
     "authors": [
@@ -24,6 +24,6 @@
 	"detain/vps-licensing": "*"
     },
     "autoload": {
-        "psr-4": {"Detain\\MyAdminVpsVps\\": "src/"}
+        "psr-4": {"Detain\\MyAdminVps\\": "src/"}
     }
 }
