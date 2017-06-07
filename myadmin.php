@@ -5,7 +5,7 @@
  - add way to call/hook into install/uninstall
 */
 return [
-	'name' => 'MyAdmin VPS Module for MyAdmin',
+	'name' => 'MyAdmin VPS Module',
 	'description' => 'Allows selling of Vps Module',
 	'help' => '',
 	'module' => 'vps',
