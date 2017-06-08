@@ -19,6 +19,7 @@ class Plugin {
 				$GLOBALS['tf']->history->add($service->get_module().'queue', $service_info[$settings['PREFIX'].'_id'], 'initial_install', '', $service_info[$settings['PREFIX'].'_custid']);
 				admin_email_vps_pending_setup($service_info[$settings['PREFIX'].'_id']);
 			})->set_reactivate(function($service) {
+				$service_types = run_event('get_service_types', false, $module);
 				$service_info = $service->get_service_info();
 				$settings = get_module_settings($service->get_module());
 				$db = get_module_db($service->get_module());
@@ -33,9 +34,9 @@ class Plugin {
 					$GLOBALS['tf']->history->add($service->get_module().'queue', $service_info[$settings['PREFIX'].'_id'], 'start', '', $service_info[$settings['PREFIX'].'_custid']);
 				}
 				$smarty = new \TFSmarty;
-				$smarty->assign('vps_name', $service_name);
+				$smarty->assign('vps_name', $service_types[$service_info[$settings['PREFIX'] . '_type']]['services_name']);
 				$email = $smarty->fetch('email/admin_email_vps_reactivated.tpl');
-				$subject = $service_info[$settings['TITLE_FIELD']].' '.$service_name.' '.$settings['TBLNAME'].' Re-Activated';
+				$subject = $service_info[$settings['TITLE_FIELD']].' '.$service_types[$service_info[$settings['PREFIX'] . '_type']]['services_name'].' '.$settings['TBLNAME'].' Re-Activated';
 				$headers = '';
 				$headers .= 'MIME-Version: 1.0' . EMAIL_NEWLINE;
 				$headers .= 'Content-type: text/html; charset=UTF-8' . EMAIL_NEWLINE;
