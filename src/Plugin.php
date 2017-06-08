@@ -48,6 +48,7 @@ class Plugin {
 	public static function Settings(GenericEvent $event) {
 		$module = 'vps';
 		$settings = $event->getSubject();
+		$settings->add_dropdown_setting($module, 'Out of Stock', 'outofstock_vps', 'Out Of Stock VPS', 'Enable/Disable Sales Of This Type', $settings->get_setting('OUTOFSTOCK_VPS'), array('0', '1'), array('No', 'Yes'));
 		$settings->add_dropdown_setting($module, 'Out of Stock', 'outofstock_openvz', 'Out Of Stock OpenVZ Secaucus', 'Enable/Disable Sales Of This Type', $settings->get_setting('OUTOFSTOCK_OPENVZ'), array('0', '1'), array('No', 'Yes', ));
 		$settings->add_dropdown_setting($module, 'Out of Stock', 'outofstock_ssd_openvz', 'Out Of Stock SSD OpenVZ Secaucus', 'Enable/Disable Sales Of This Type', $settings->get_setting('OUTOFSTOCK_SSD_OPENVZ'), array('0', '1'), array('No', 'Yes', ));
 		$settings->add_dropdown_setting($module, 'Out of Stock', 'outofstock_virtuozzo', 'Out Of Stock Virtuozzo Secaucus', 'Enable/Disable Sales Of This Type', $settings->get_setting('OUTOFSTOCK_VIRTUOZZO'), array('0', '1'), array('No', 'Yes', ));
