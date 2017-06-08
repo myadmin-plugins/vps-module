@@ -19,7 +19,7 @@ class Plugin {
 				$GLOBALS['tf']->history->add($service->get_module().'queue', $service_info[$settings['PREFIX'].'_id'], 'initial_install', '', $service_info[$settings['PREFIX'].'_custid']);
 				admin_email_vps_pending_setup($service_info[$settings['PREFIX'].'_id']);
 			})->set_reactivate(function($service) {
-				$service_types = run_event('get_service_types', false, $module);
+				$service_types = run_event('get_service_types', false, $service->get_module());
 				$service_info = $service->get_service_info();
 				$settings = get_module_settings($service->get_module());
 				$db = get_module_db($service->get_module());
