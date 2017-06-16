@@ -6,7 +6,21 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 
 class Plugin {
 
+	public static $name = 'VPS Module';
+	public static $description = 'Allows selling of Vps Module';
+	public static $help = '';
+	public static $module = 'vps';
+	public static $type = 'module';
+
+
 	public function __construct() {
+	}
+
+	public static function Hooks() {
+		return [
+			'vps.load_processing' => ['Detain\MyAdminVps\Plugin', 'Load'],
+			'vps.settings' => ['Detain\MyAdminVps\Plugin', 'Settings'],
+		];
 	}
 
 	public static function Load(GenericEvent $event) {
