@@ -18,8 +18,8 @@ class Plugin {
 
 	public static function Hooks() {
 		return [
-			'vps.load_processing' => ['Detain\MyAdminVps\Plugin', 'Load'],
-			'vps.settings' => ['Detain\MyAdminVps\Plugin', 'Settings'],
+			'vps.load_processing' => [__CLASS__, 'Load'],
+			'vps.settings' => [__CLASS__, 'Settings'],
 		];
 	}
 
