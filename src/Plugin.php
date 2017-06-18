@@ -19,7 +19,7 @@ class Plugin {
 	public static function getHooks() {
 		return [
 			'vps.load_processing' => [__CLASS__, 'Load'],
-			'vps.settings' => [__CLASS__, 'Settings'],
+			'vps.settings' => [__CLASS__, 'getSettings'],
 		];
 	}
 
@@ -60,7 +60,7 @@ class Plugin {
 			})->register();
 	}
 
-	public static function Settings(GenericEvent $event) {
+	public static function getSettings(GenericEvent $event) {
 		$module = 'vps';
 		$settings = $event->getSubject();
 		$settings->add_text_setting($module, 'Credentials', 'webuzo_license_key', 'Webuzo License Key:', 'API Credentials for Webuozo', $settings->get_setting('WEBUZO_LICENSE_KEY'));
