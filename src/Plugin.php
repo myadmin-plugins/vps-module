@@ -70,7 +70,7 @@ class Plugin {
 		$settings->add_text_setting($module, 'Slice Amounts', 'vps_bw_type', 'Bandwidth Limited by Total Traffic or Throttling', 'Enable/Disable Sales Of This Type', $settings->get_setting('VPS_BW_TYPE'), array('1', '2'), array('Throttled in mbps', 'Total GBytes Used', ));
 		$settings->add_text_setting($module, 'Slice Amounts', 'vps_slice_bw', 'Bandwidth Limit Per Slice in Mbits/s  or Gbytes:', 'Amount of Bandwidth per slice.', $settings->get_setting('VPS_SLICE_BW'));
 		$settings->add_text_setting($module, 'Slice Amounts', 'vps_slice_max', 'Max Slices Per Order:', 'Maximum amount of slices any one VPS can be.', $settings->get_setting('VPS_SLICE_MAX'));
-		$settings->add_select_master_autosetup($module, 'Auto-Setup Servers', $module, 'setup_servers', 'Auto-Setup Servers:', '<p>Choose which servers are used for auto-server Setups.</p>');
+		$settings->add_select_master_autosetup($module, 'Auto-Setup Servers', $module, 'vps_setup_servers', 'Auto-Setup Servers:', '<p>Choose which servers are used for auto-server Setups.</p>');
 		$settings->add_dropdown_setting($module, 'Out of Stock', 'outofstock_vps', 'Out Of Stock VPS', 'Enable/Disable Sales Of This Type', $settings->get_setting('OUTOFSTOCK_VPS'), array('0', '1'), array('No', 'Yes'));
 	}
 }
