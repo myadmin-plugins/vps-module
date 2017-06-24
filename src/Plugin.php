@@ -13,8 +13,8 @@ class Plugin {
 	public static $type = 'module';
 	public static $settings = [
 		'SERVICE_ID_OFFSET' => 0,
-		'USE_REPEAT_INVOICE' => true,
-		'USE_PACKAGES' => true,
+		'USE_REPEAT_INVOICE' => TRUE,
+		'USE_PACKAGES' => TRUE,
 		'BILLING_DAYS_OFFSET' => 0,
 		'IMGNAME' => 'server_add_48.png',
 		'REPEAT_BILLING_METHOD' => PRORATE_BILLING,
@@ -53,7 +53,7 @@ class Plugin {
 				$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 				admin_email_vps_pending_setup($serviceInfo[$settings['PREFIX'].'_id']);
 			})->set_reactivate(function($service) {
-				$serviceTypes = run_event('get_service_types', false, self::$module);
+				$serviceTypes = run_event('get_service_types', FALSE, self::$module);
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
 				$db = get_module_db(self::$module);
@@ -75,7 +75,7 @@ class Plugin {
 				$headers .= 'MIME-Version: 1.0' . EMAIL_NEWLINE;
 				$headers .= 'Content-type: text/html; charset=UTF-8' . EMAIL_NEWLINE;
 				$headers .= 'From: ' . TITLE . ' <' . EMAIL_FROM . '>' . EMAIL_NEWLINE;
-				admin_mail($subject, $email, $headers, false, 'admin_email_vps_reactivated.tpl');
+				admin_mail($subject, $email, $headers, FALSE, 'admin_email_vps_reactivated.tpl');
 			})->set_disable(function($service) {
 			})->register();
 	}
