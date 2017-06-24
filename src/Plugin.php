@@ -11,6 +11,24 @@ class Plugin {
 	public static $help = '';
 	public static $module = 'vps';
 	public static $type = 'module';
+	public static $settings = [
+		'SERVICE_ID_OFFSET' => 0,
+		'USE_REPEAT_INVOICE' => true,
+		'USE_PACKAGES' => true,
+		'BILLING_DAYS_OFFSET' => 0,
+		'IMGNAME' => 'server_add_48.png',
+		'REPEAT_BILLING_METHOD' => PRORATE_BILLING,
+		'DELETE_PENDING_DAYS' => 45,
+		'SUSPEND_DAYS' => 14,
+		'SUSPEND_WARNING_DAYS' => 7,
+		'TITLE' => 'VPS',
+		'MENUNAME' => 'VPS',
+		'EMAIL_FROM' => 'support@interserver.net',
+		'TBLNAME' => 'VPS',
+		'TABLE' => 'vps',
+		'TITLE_FIELD' => 'vps_hostname',
+		'TITLE_FIELD2' => 'vps_ip',
+		'PREFIX' => 'vps'];
 
 
 	public function __construct() {
