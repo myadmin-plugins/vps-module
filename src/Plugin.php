@@ -25,7 +25,7 @@ class Plugin {
 
 	public static function loadProcessing(GenericEvent $event) {
 		$service = $event->getSubject();
-		$service->set_module('vps')
+		$service->setModule('vps')
 			->set_enable(function($service) {
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings($service->getModule());
