@@ -29,7 +29,9 @@ class Plugin {
 			->set_enable(function($service) {
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings($service->get_module());
-				$GLOBALS['tf']->history->add($service->get_module().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+				$db = get_db_module($service->get_module());
+				$db->query("update ".$settings['TABLE']." set ".$settings['PREFIX']."_status='pending-setup' where ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
+				$GLOBALS['tf']->history->add($settings['PREFIX'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 				$GLOBALS['tf']->history->add($service->get_module().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 				admin_email_vps_pending_setup($serviceInfo[$settings['PREFIX'].'_id']);
 			})->set_reactivate(function($service) {
