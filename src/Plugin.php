@@ -68,9 +68,9 @@ class Plugin {
 					$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'start', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 				}
 				$smarty = new \TFSmarty;
-				$smarty->assign('vps_name', $serviceTypes[$serviceInfo[$settings['PREFIX'] . '_type']]['services_name']);
+				$smarty->assign('vps_name', $serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']);
 				$email = $smarty->fetch('email/admin_email_vps_reactivated.tpl');
-				$subject = $serviceInfo[$settings['TITLE_FIELD']].' '.$serviceTypes[$serviceInfo[$settings['PREFIX'] . '_type']]['services_name'].' '.$settings['TBLNAME'].' Re-Activated';
+				$subject = $serviceInfo[$settings['TITLE_FIELD']].' '.$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name'].' '.$settings['TBLNAME'].' Re-Activated';
 				$headers = '';
 				$headers .= 'MIME-Version: 1.0' . EMAIL_NEWLINE;
 				$headers .= 'Content-type: text/html; charset=UTF-8' . EMAIL_NEWLINE;
