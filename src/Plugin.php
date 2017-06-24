@@ -28,26 +28,26 @@ class Plugin {
 		$service->set_module('vps')
 			->set_enable(function($service) {
 				$serviceInfo = $service->getServiceInfo();
-				$settings = get_module_settings($service->get_module());
-				$db = get_module_db($service->get_module());
+				$settings = get_module_settings($service->getModule());
+				$db = get_module_db($service->getModule());
 				$db->query("update ".$settings['TABLE']." set ".$settings['PREFIX']."_status='pending-setup' where ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
 				$GLOBALS['tf']->history->add($settings['PREFIX'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
-				$GLOBALS['tf']->history->add($service->get_module().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+				$GLOBALS['tf']->history->add($service->getModule().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 				admin_email_vps_pending_setup($serviceInfo[$settings['PREFIX'].'_id']);
 			})->set_reactivate(function($service) {
-				$serviceTypes = run_event('get_service_types', false, $service->get_module());
+				$serviceTypes = run_event('get_service_types', false, $service->getModule());
 				$serviceInfo = $service->getServiceInfo();
-				$settings = get_module_settings($service->get_module());
-				$db = get_module_db($service->get_module());
+				$settings = get_module_settings($service->getModule());
+				$db = get_module_db($service->getModule());
 				if ($serviceInfo[$settings['PREFIX'].'_server_status'] === 'deleted' || $serviceInfo[$settings['PREFIX'].'_ip'] == '') {
 					$GLOBALS['tf']->history->add($settings['PREFIX'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 					$db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_status='pending-setup' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
-					$GLOBALS['tf']->history->add($service->get_module().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+					$GLOBALS['tf']->history->add($service->getModule().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 				} else {
 					$GLOBALS['tf']->history->add($settings['PREFIX'], 'change_status', 'active', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 					$db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_status='active' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
-					$GLOBALS['tf']->history->add($service->get_module().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'enable', '', $serviceInfo[$settings['PREFIX'].'_custid']);
-					$GLOBALS['tf']->history->add($service->get_module().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'start', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+					$GLOBALS['tf']->history->add($service->getModule().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'enable', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+					$GLOBALS['tf']->history->add($service->getModule().'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'start', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 				}
 				$smarty = new \TFSmarty;
 				$smarty->assign('vps_name', $serviceTypes[$serviceInfo[$settings['PREFIX'] . '_type']]['services_name']);
