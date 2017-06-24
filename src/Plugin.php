@@ -18,12 +18,12 @@ class Plugin {
 
 	public static function getHooks() {
 		return [
-			'vps.load_processing' => [__CLASS__, 'Load'],
+			'vps.load_processing' => [__CLASS__, 'loadProcessing'],
 			'vps.settings' => [__CLASS__, 'getSettings'],
 		];
 	}
 
-	public static function Load(GenericEvent $event) {
+	public static function loadProcessing(GenericEvent $event) {
 		$service = $event->getSubject();
 		$service->set_module('vps')
 			->set_enable(function($service) {
