@@ -86,10 +86,10 @@ class Plugin {
 		$settings->add_text_setting(self::$module, 'Slice Costs', 'vps_ny_cost', 'VPS NY4 Multiplier:', 'This is the multiplier to a normal cost for an item to be hosted in NY.', $settings->get_setting('VPS_NY_COST'));
 		$settings->add_text_setting(self::$module, 'Slice Amounts', 'vps_slice_ram', 'Ram Per Slice:', 'Amount of ram in MB per VPS Slice', $settings->get_setting('VPS_SLICE_RAM'));
 		$settings->add_text_setting(self::$module, 'Slice Amounts', 'vps_slice_hd', 'HD Space Per Slice:', 'Amount of HD space in GB per VPS Slice', $settings->get_setting('VPS_SLICE_HD'));
-		$settings->add_text_setting(self::$module, 'Slice Amounts', 'vps_bw_type', 'Bandwidth Limited by Total Traffic or Throttling', 'Enable/Disable Sales Of This Type', $settings->get_setting('VPS_BW_TYPE'), array('1', '2'), array('Throttled in mbps', 'Total GBytes Used', ));
+		$settings->add_text_setting(self::$module, 'Slice Amounts', 'vps_bw_type', 'Bandwidth Limited by Total Traffic or Throttling', 'Enable/Disable Sales Of This Type', $settings->get_setting('VPS_BW_TYPE'), ['1', '2'], ['Throttled in mbps', 'Total GBytes Used']);
 		$settings->add_text_setting(self::$module, 'Slice Amounts', 'vps_slice_bw', 'Bandwidth Limit Per Slice in Mbits/s  or Gbytes:', 'Amount of Bandwidth per slice.', $settings->get_setting('VPS_SLICE_BW'));
 		$settings->add_text_setting(self::$module, 'Slice Amounts', 'vps_slice_max', 'Max Slices Per Order:', 'Maximum amount of slices any one VPS can be.', $settings->get_setting('VPS_SLICE_MAX'));
 		$settings->add_select_master_autosetup(self::$module, 'Auto-Setup Servers', self::$module, 'vps_setup_servers', 'Auto-Setup Servers:', '<p>Choose which servers are used for auto-server Setups.</p>');
-		$settings->add_dropdown_setting(self::$module, 'Out of Stock', 'outofstock_vps', 'Out Of Stock VPS', 'Enable/Disable Sales Of This Type', $settings->get_setting('OUTOFSTOCK_VPS'), array('0', '1'), array('No', 'Yes'));
+		$settings->add_dropdown_setting(self::$module, 'Out of Stock', 'outofstock_vps', 'Out Of Stock VPS', 'Enable/Disable Sales Of This Type', $settings->get_setting('OUTOFSTOCK_VPS'), ['0', '1'], ['No', 'Yes']);
 	}
 }
