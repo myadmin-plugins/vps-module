@@ -4,6 +4,11 @@ namespace Detain\MyAdminVps;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
 
+/**
+ * Class Plugin
+ *
+ * @package Detain\MyAdminVps
+ */
 class Plugin {
 
 	public static $name = 'VPS Servers';
@@ -30,10 +35,15 @@ class Plugin {
 		'TITLE_FIELD2' => 'vps_ip',
 		'PREFIX' => 'vps'];
 
-
+	/**
+	 * Plugin constructor.
+	 */
 	public function __construct() {
 	}
 
+	/**
+	 * @return array
+	 */
 	public static function getHooks() {
 		return [
 			self::$module.'.load_processing' => [__CLASS__, 'loadProcessing'],
@@ -41,6 +51,9 @@ class Plugin {
 		];
 	}
 
+	/**
+	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
+	 */
 	public static function loadProcessing(GenericEvent $event) {
 		$service = $event->getSubject();
 		$service->setModule(self::$module)
@@ -80,6 +93,9 @@ class Plugin {
 			})->register();
 	}
 
+	/**
+	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
+	 */
 	public static function getSettings(GenericEvent $event) {
 		$settings = $event->getSubject();
 		$settings->add_text_setting(self::$module, 'Credentials', 'webuzo_license_key', 'Webuzo License Key:', 'API Credentials for Webuozo', $settings->get_setting('WEBUZO_LICENSE_KEY'));
