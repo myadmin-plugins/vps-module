@@ -90,6 +90,24 @@ class Plugin {
 				$headers .= 'From: '.TITLE.' <'.EMAIL_FROM.'>'.EMAIL_NEWLINE;
 				admin_mail($subject, $email, $headers, FALSE, 'admin_email_vps_reactivated.tpl');
 			})->set_disable(function($service) {
+			})->setTerminate(function($service) {
+				$serviceInfo = $service->getServiceInfo();
+				$settings = get_module_settings(self::$module);
+				$serviceTypes = run_event('get_service_types', FALSE, self::$module);
+				$settings = get_module_settings(self::$module);
+				$class = '\\MyAdmin\\Orm\\'.get_orm_class_from_table($settings['TABLE']);
+				$ips = [];
+				$db = get_module_db(self::$module);
+				$db->query("select * from {$settings['PREFIX']}_ips where ips_{$settings['PREFIX']}='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
+				while ($db->next_record(MYSQL_ASSOC))
+					if (!in_array($db->Record['ips_ip'], $ips))
+						$ips[] = $db->Record['ips_ip'];
+				$db->query("update {$settings['PREFIX']}_ips set ips_main=0,ips_usable=1,ips_used=0,ips_{$settings['PREFIX']}=0 where ips_{$settings['PREFIX']}='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
+				function_requirements('reverse_dns');
+				foreach ($ips as $ip)
+					if (validIp($ip))
+						reverse_dns($ip, '', 'remove_reverse');
+				$GLOBALS['tf']->history->add(self::$module . 'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'destroy', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 			})->register();
 	}
 
