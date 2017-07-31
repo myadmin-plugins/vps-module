@@ -57,7 +57,7 @@ class Plugin {
 	public static function loadProcessing(GenericEvent $event) {
 		$service = $event->getSubject();
 		$service->setModule(self::$module)
-			->set_enable(function($service) {
+			->setEnable(function($service) {
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
 				$db = get_module_db(self::$module);
@@ -65,7 +65,7 @@ class Plugin {
 				$GLOBALS['tf']->history->add($settings['PREFIX'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 				$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 				admin_email_vps_pending_setup($serviceInfo[$settings['PREFIX'].'_id']);
-			})->set_reactivate(function($service) {
+			})->setReactivate(function($service) {
 				$serviceTypes = run_event('get_service_types', FALSE, self::$module);
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
@@ -89,7 +89,7 @@ class Plugin {
 				$headers .= 'Content-type: text/html; charset=UTF-8'.EMAIL_NEWLINE;
 				$headers .= 'From: '.TITLE.' <'.EMAIL_FROM.'>'.EMAIL_NEWLINE;
 				admin_mail($subject, $email, $headers, FALSE, 'admin_email_vps_reactivated.tpl');
-			})->set_disable(function($service) {
+			})->setDisable(function($service) {
 			})->setTerminate(function($service) {
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
