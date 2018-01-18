@@ -24,5 +24,5 @@ composer require detain/myadmin-vps-module
 
 ## License
 
-The VPS Module for MyAdmin class is licensed under the LGPL-v2 license.
+The VPS Module for MyAdmin class is licensed under the LGPL-v2.1 license.
 
