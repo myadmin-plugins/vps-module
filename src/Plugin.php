@@ -47,14 +47,53 @@ class Plugin {
 	public static function getHooks() {
 		return [
 			self::$module.'.load_processing' => [__CLASS__, 'loadProcessing'],
+			self::$module.'.load_addons' => [__CLASS__, 'getAddon'],
 			self::$module.'.settings' => [__CLASS__, 'getSettings']
 		];
 	}
+
+
+	/**
+	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
+	 */
+	public static function getAddon(GenericEvent $event) {
+		/**
+		 * @var \ServiceHandler $service
+		 */
+		$service = $event->getSubject();
+		function_requirements('class.AddonHandler');
+		$addon = new \AddonHandler();
+		$addon->setModule(self::$module)
+			->set_text('Slice Upgrade')
+			->set_text_match('(.*) Slice Upgrade')
+			->set_require_ip(FALSE)
+			->setOneTime(TRUE)
+			->setEnable([__CLASS__, 'doSliceEnable'])
+			->register();
+		$service->addAddon($addon);
+	}
+
+	/**
+	 * @param \ServiceHandler $serviceOrder
+	 * @param                $repeatInvoiceId
+	 * @param bool           $regexMatch
+	 */
+	public static function doSliceEnable(\ServiceHandler $serviceOrder, $repeatInvoiceId, $regexMatch = FALSE) {
+		$serviceInfo = $serviceOrder->getServiceInfo();
+		$settings = get_module_settings(self::$module);
+		$slices = $regexMatch;
+		myadmin_log(self::$module, 'info', self::$name." Setting {$slices} Slices for {$settings['TBLNAME']} {$serviceInfo[$settings['PREFIX'].'_id']}", __LINE__, __FILE__);
+		$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'set_slices', $slices, $serviceInfo[$settings['PREFIX'].'_custid']);
+	}
+
 
 	/**
 	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
 	 */
 	public static function loadProcessing(GenericEvent $event) {
+		/**
+		 * @var \ServiceHandler $service
+		 */
 		$service = $event->getSubject();
 		$service->setModule(self::$module)
 			->setEnable(function($service) {
