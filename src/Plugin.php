@@ -83,6 +83,8 @@ class Plugin {
 		$settings = get_module_settings(self::$module);
 		$slices = $regexMatch;
 		myadmin_log(self::$module, 'info', self::$name." Setting {$slices} Slices for {$settings['TBLNAME']} {$serviceInfo[$settings['PREFIX'].'_id']}", __LINE__, __FILE__);
+		$db = get_module_db(self::$module);
+		$db->query("update vps set vps_slices=10 where vps_id={$serviceInfo[$settings['PREFIX'].'_id']}", __LINE__, __FILE__);
 		$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'set_slices', $slices, $serviceInfo[$settings['PREFIX'].'_custid']);
 	}
 
