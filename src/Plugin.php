@@ -80,14 +80,23 @@ class Plugin {
 	 */
 	public static function doSliceEnable(\ServiceHandler $serviceOrder, $repeatInvoiceId, $regexMatch = FALSE) {
 		$serviceInfo = $serviceOrder->getServiceInfo();
+		$serviceTypes = run_event('get_service_types', FALSE, self::$module);
 		$settings = get_module_settings(self::$module);
 		$slices = $regexMatch;
 		myadmin_log(self::$module, 'info', self::$name." Setting {$slices} Slices for {$settings['TBLNAME']} {$serviceInfo[$settings['PREFIX'].'_id']}", __LINE__, __FILE__);
+		function_requirements('get_coupon_cost');
+		$slice_cost = $serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_cost'];
+		$slice_cost = get_coupon_cost($slice_cost, $serviceInfo[$settings['PREFIX'].'_coupon']);
+		$slice_cost = round($slice_cost * get_frequency_discount($db->Record['repeat_invoices_frequency']), 2);
 		$db = get_module_db(self::$module);
-		$db->query("update vps set vps_slices=10 where vps_id={$serviceInfo[$settings['PREFIX'].'_id']}", __LINE__, __FILE__);
-		$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'set_slices', $slices, $serviceInfo[$settings['PREFIX'].'_custid']);
+		$db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_cost='".($slice_cost * $slices)."', {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
+		$db->query("update repeat_invoices set repeat_invoices_description='{$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', repeat_invoices_cost='".($slice_cost * $slices)."' where repeat_invoices_id='{$serviceInfo[$settings['PREFIX'].'_invoice']}'", __LINE__, __FILE__);
+		$db->query("update invoices set invoices_description='(Repeat Invoice: {$serviceInfo[$settings['PREFIX'].'_invoice']}) {$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', invoices_amount='".($slice_cost * $slices)."' where invoices_type=1 and invoices_paid=0 and invoices_extra='{$serviceInfo[$settings['PREFIX'].'_invoice']}'", __LINE__, __FILE__);
+		if (!in_array($serviceInfo['vps_status'], ['pending'])) {
+			$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'set_slices', $slices, $serviceInfo[$settings['PREFIX'].'_custid']);
+			add_output('Update has been sent to the server');
+		}
 	}
-
 
 	/**
 	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
