@@ -87,7 +87,7 @@ class Plugin {
 		function_requirements('get_coupon_cost');
 		$slice_cost = $serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_cost'];
 		$slice_cost = get_coupon_cost($slice_cost, $serviceInfo[$settings['PREFIX'].'_coupon']);
-		$slice_cost = round($slice_cost * get_frequency_discount($db->Record['repeat_invoices_frequency']), 2);
+		$slice_cost = round($slice_cost * get_frequency_discount($serviceInfo[$settings['PREFIX'].'_frequency']), 2);
 		$db = get_module_db(self::$module);
 		$db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_cost='".($slice_cost * $slices)."', {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
 		$db->query("update repeat_invoices set repeat_invoices_description='{$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', repeat_invoices_cost='".($slice_cost * $slices)."' where repeat_invoices_id='{$serviceInfo[$settings['PREFIX'].'_invoice']}'", __LINE__, __FILE__);
