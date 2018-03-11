@@ -111,7 +111,7 @@ class Plugin {
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
 				$db = get_module_db(self::$module);
-				$db->query('update ' . $settings['TABLE']. ' set ' . $settings['PREFIX']."_status='pending-setup' where ". $settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
+				$db->query('update '.$settings['TABLE'].' set '.$settings['PREFIX']."_status='pending-setup' where ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
 				$GLOBALS['tf']->history->add($settings['PREFIX'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 				$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 				admin_email_vps_pending_setup($serviceInfo[$settings['PREFIX'].'_id']);
@@ -157,7 +157,7 @@ class Plugin {
 				foreach ($ips as $ip)
 					if (validIp($ip))
 						reverse_dns($ip, '', 'remove_reverse');
-				$GLOBALS['tf']->history->add(self::$module . 'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'destroy', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+				$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'destroy', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 			})->register();
 	}
 
