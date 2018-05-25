@@ -174,7 +174,9 @@ class Plugin {
 		$settings->add_text_setting(self::$module, 'Slice Amounts', 'vps_slice_bw', 'Bandwidth Limit Per Slice in Mbits/s  or Gbytes:', 'Amount of Bandwidth per slice.', $settings->get_setting('VPS_SLICE_BW'));
 		$settings->add_text_setting(self::$module, 'Slice Amounts', 'vps_slice_max', 'Max Slices Per Order:', 'Maximum amount of slices any one VPS can be.', $settings->get_setting('VPS_SLICE_MAX'));
 		$settings->add_master_checkbox_setting(self::$module, 'Server Settings', self::$module, 'available', 'vps_available', 'Auto-Setup', '<p>Choose which servers are used for auto-server Setups.</p>');
+		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_services', 'Active VPS', '<p>The current number of active VPS.</p>', 'count(vps.vps_id) as active_services');
 		$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'server_max', 'vps_server_max', 'Max VPS', '<p>The Maximum number of VPS that can be running on each server.</p>');
+		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_slices', 'Active Slices', '<p>The current total slices from active VPS.</p>', 'sum(vps.vps_slices) as active_slices');
 		$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'server_max_slices', 'vps_server_max_slices', 'Max Slices', '<p>The Maximum number of total slices that can be running on each server.</p>');
 		$settings->add_dropdown_setting(self::$module, 'Out of Stock', 'outofstock_vps', 'Out Of Stock VPS', 'Enable/Disable Sales Of This Type', $settings->get_setting('OUTOFSTOCK_VPS'), ['0', '1'], ['No', 'Yes']);
 	}
