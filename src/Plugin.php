@@ -79,6 +79,7 @@ class Plugin {
 	 * @param bool           $regexMatch
 	 */
 	public static function doSliceEnable(\ServiceHandler $serviceOrder, $repeatInvoiceId, $regexMatch = FALSE) {
+		$deferUpgradeViaTicket = true;
 		$serviceInfo = $serviceOrder->getServiceInfo();
 		$serviceTypes = run_event('get_service_types', FALSE, self::$module);
 		$settings = get_module_settings(self::$module);
@@ -93,8 +94,14 @@ class Plugin {
 		$db->query("update repeat_invoices set repeat_invoices_description='{$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', repeat_invoices_cost='".($slice_cost * $slices)."' where repeat_invoices_id='{$serviceInfo[$settings['PREFIX'].'_invoice']}'", __LINE__, __FILE__);
 		$db->query("update invoices set invoices_description='(Repeat Invoice: {$serviceInfo[$settings['PREFIX'].'_invoice']}) {$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', invoices_amount='".($slice_cost * $slices)."' where invoices_type=1 and invoices_paid=0 and invoices_extra='{$serviceInfo[$settings['PREFIX'].'_invoice']}'", __LINE__, __FILE__);
 		if (!in_array($serviceInfo['vps_status'], ['pending'])) {
-			$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'set_slices', $slices, $serviceInfo[$settings['PREFIX'].'_custid']);
-			add_output('Update has been sent to the server');
+			if ($deferUpgradeViaTicket == true) {
+				add_output('Thank you for your upgrade request. A ticket has been automatically opened for you. Please allow us 24 hours to complete your upgrade. You can check the status of your ticket here');
+				function_requirements('create_ticket');
+				create_ticket($GLOBALS['tf']->accounts->cross_reference($serviceInfo[$settings['PREFIX'].'_custid']), "VPS {$serviceInfo[$settings['PREFIX'].'_id']} has paid for and needs a slice upgrade to {$slices} slices.", "VPS {$serviceInfo[$settings['PREFIX'].'_id']} Slice Upgrade");
+			} else {
+				$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'set_slices', $slices, $serviceInfo[$settings['PREFIX'].'_custid']);
+				add_output('Update has been sent to the server');
+			}
 		}
 	}
 
