@@ -9,8 +9,8 @@ use Symfony\Component\EventDispatcher\GenericEvent;
  *
  * @package Detain\MyAdminVps
  */
-class Plugin {
-
+class Plugin
+{
 	public static $name = 'VPS Servers';
 	public static $description = 'Allows selling of Vps Module';
 	public static $help = '';
@@ -18,8 +18,8 @@ class Plugin {
 	public static $type = 'module';
 	public static $settings = [
 		'SERVICE_ID_OFFSET' => 0,
-		'USE_REPEAT_INVOICE' => TRUE,
-		'USE_PACKAGES' => TRUE,
+		'USE_REPEAT_INVOICE' => true,
+		'USE_PACKAGES' => true,
 		'BILLING_DAYS_OFFSET' => 0,
 		'IMGNAME' => 'root-server.png',
 		'REPEAT_BILLING_METHOD' => PRORATE_BILLING,
@@ -38,13 +38,15 @@ class Plugin {
 	/**
 	 * Plugin constructor.
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function getHooks() {
+	public static function getHooks()
+	{
 		return [
 			self::$module.'.load_processing' => [__CLASS__, 'loadProcessing'],
 			self::$module.'.load_addons' => [__CLASS__, 'getAddon'],
@@ -56,7 +58,8 @@ class Plugin {
 	/**
 	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
 	 */
-	public static function getAddon(GenericEvent $event) {
+	public static function getAddon(GenericEvent $event)
+	{
 		/**
 		 * @var \ServiceHandler $service
 		 */
@@ -66,8 +69,8 @@ class Plugin {
 		$addon->setModule(self::$module)
 			->set_text('Slice Upgrade')
 			->set_text_match('(.*) Slice Upgrade')
-			->set_require_ip(FALSE)
-			->setOneTime(TRUE)
+			->set_require_ip(false)
+			->setOneTime(true)
 			->setEnable([__CLASS__, 'doSliceEnable'])
 			->register();
 		$service->addAddon($addon);
@@ -78,10 +81,11 @@ class Plugin {
 	 * @param                $repeatInvoiceId
 	 * @param bool           $regexMatch
 	 */
-	public static function doSliceEnable(\ServiceHandler $serviceOrder, $repeatInvoiceId, $regexMatch = FALSE) {
+	public static function doSliceEnable(\ServiceHandler $serviceOrder, $repeatInvoiceId, $regexMatch = false)
+	{
 		$deferUpgradeViaTicket = true;
 		$serviceInfo = $serviceOrder->getServiceInfo();
-		$serviceTypes = run_event('get_service_types', FALSE, self::$module);
+		$serviceTypes = run_event('get_service_types', false, self::$module);
 		$settings = get_module_settings(self::$module);
 		$slices = $regexMatch;
 		myadmin_log(self::$module, 'info', self::$name." Setting {$slices} Slices for {$settings['TBLNAME']} {$serviceInfo[$settings['PREFIX'].'_id']}", __LINE__, __FILE__);
@@ -108,13 +112,14 @@ class Plugin {
 	/**
 	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
 	 */
-	public static function loadProcessing(GenericEvent $event) {
+	public static function loadProcessing(GenericEvent $event)
+	{
 		/**
 		 * @var \ServiceHandler $service
 		 */
 		$service = $event->getSubject();
 		$service->setModule(self::$module)
-			->setEnable(function($service) {
+			->setEnable(function ($service) {
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
 				$db = get_module_db(self::$module);
@@ -122,8 +127,8 @@ class Plugin {
 				$GLOBALS['tf']->history->add($settings['PREFIX'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 				$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 				admin_email_vps_pending_setup($serviceInfo[$settings['PREFIX'].'_id']);
-			})->setReactivate(function($service) {
-				$serviceTypes = run_event('get_service_types', FALSE, self::$module);
+			})->setReactivate(function ($service) {
+				$serviceTypes = run_event('get_service_types', false, self::$module);
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
 				$db = get_module_db(self::$module);
@@ -145,25 +150,29 @@ class Plugin {
 				$headers .= 'MIME-Version: 1.0'.PHP_EOL;
 				$headers .= 'Content-type: text/html; charset=UTF-8'.PHP_EOL;
 				$headers .= 'From: '.TITLE.' <'.EMAIL_FROM.'>'.PHP_EOL;
-				admin_mail($subject, $email, $headers, FALSE, 'admin/vps_reactivated.tpl');
-			})->setDisable(function($service) {
-			})->setTerminate(function($service) {
+				admin_mail($subject, $email, $headers, false, 'admin/vps_reactivated.tpl');
+			})->setDisable(function ($service) {
+			})->setTerminate(function ($service) {
 				$serviceInfo = $service->getServiceInfo();
 				$settings = get_module_settings(self::$module);
-				$serviceTypes = run_event('get_service_types', FALSE, self::$module);
+				$serviceTypes = run_event('get_service_types', false, self::$module);
 				$settings = get_module_settings(self::$module);
 				$class = '\\MyAdmin\\Orm\\'.get_orm_class_from_table($settings['TABLE']);
 				$ips = [];
 				$db = get_module_db(self::$module);
 				$db->query("select * from {$settings['PREFIX']}_ips where ips_{$settings['PREFIX']}='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
-				while ($db->next_record(MYSQL_ASSOC))
-					if (!in_array($db->Record['ips_ip'], $ips))
+				while ($db->next_record(MYSQL_ASSOC)) {
+					if (!in_array($db->Record['ips_ip'], $ips)) {
 						$ips[] = $db->Record['ips_ip'];
+					}
+				}
 				$db->query("update {$settings['PREFIX']}_ips set ips_main=0,ips_usable=1,ips_used=0,ips_{$settings['PREFIX']}=0 where ips_{$settings['PREFIX']}='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
 				function_requirements('reverse_dns');
-				foreach ($ips as $ip)
-					if (validIp($ip))
+				foreach ($ips as $ip) {
+					if (validIp($ip)) {
 						reverse_dns($ip, '', 'remove_reverse');
+					}
+				}
 				$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'destroy', '', $serviceInfo[$settings['PREFIX'].'_custid']);
 			})->register();
 	}
@@ -171,7 +180,8 @@ class Plugin {
 	/**
 	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
 	 */
-	public static function getSettings(GenericEvent $event) {
+	public static function getSettings(GenericEvent $event)
+	{
 		$settings = $event->getSubject();
 		$settings->add_text_setting(self::$module, 'Credentials', 'webuzo_license_key', 'Webuzo License Key:', 'API Credentials for Webuozo', $settings->get_setting('WEBUZO_LICENSE_KEY'));
 		$settings->add_text_setting(self::$module, 'Slice Costs', 'vps_ny_cost', 'VPS NY4 Multiplier:', 'This is the multiplier to a normal cost for an item to be hosted in NY.', $settings->get_setting('VPS_NY_COST'));
