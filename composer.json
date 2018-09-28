@@ -1,5 +1,5 @@
 {
-	"name": "detain/myadmin-vps-module",
+	"name": "detain/vps-module",
 	"type": "myadmin-plugin",
 	"description": "VPS Module for MyAdmin",
 	"keywords": [
