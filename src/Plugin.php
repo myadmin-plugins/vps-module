@@ -83,10 +83,10 @@ class Plugin
         api_register_array('vps_screenshot_return', ['status' => 'string', 'status_text' => 'string', 'url' => 'string', 'link' => 'string', 'js' => 'string']);
         api_register_array('buy_vps_result_status', ['status' => 'string', 'status_text' => 'string', 'invoices' => 'string', 'cost' => 'float']);
         api_register_array('validate_buy_vps_result_status', ['coupon_code' => 'int', 'service_cost' => 'float', 'slice_cost' => 'float', 'service_type' => 'int', 'repeat_slice_cost' => 'float', 'original_slice_cost' => 'float', 'original_cost' => 'float', 'repeat_service_cost' => 'float', 'monthly_service_cost' => 'float', 'custid' => 'int', 'os' => 'string', 'slices' => 'int', 'platform' => 'string', 'controlpanel' => 'string', 'period' => 'int', 'location' => 'int', 'version' => 'string', 'hostname' => 'string', 'coupon' => 'string', 'rootpass' => 'string', 'status_text' => 'string', 'status' => 'string']);
-        //api_register('vps_queue_stop', ['sid' => 'string', 'id' => 'int'], ['return' => 'api_return'], 'Cancel a License.', true, false);
-        api_register('vps_queue_stop', ['id' => 'int'], ['return' => 'api_return'], 'stops a vps', true);
-        api_register('vps_queue_start', ['id' => 'int'], ['return' => 'api_return'], 'start a vps', true);
-        api_register('vps_queue_restart', ['id' => 'int'], ['return' => 'api_return'], 'restart a vps', true);
+        //api_register('vps_queue_stop', ['sid' => 'string', 'id' => 'int'], ['return' => 'result_status'], 'Cancel a License.', true, false);
+        api_register('vps_queue_stop', ['id' => 'int'], ['return' => 'result_status'], 'stops a vps', true);
+        api_register('vps_queue_start', ['id' => 'int'], ['return' => 'result_status'], 'start a vps', true);
+        api_register('vps_queue_restart', ['id' => 'int'], ['return' => 'result_status'], 'restart a vps', true);
         api_register('get_vps_slice_types', [], ['return' => 'array:vps_slice_type'], 'We have several types of Servers available for use with VPS Hosting. You can get a list of the types available and  there cost per slice/unit by making a call to this function', false);
         api_register('get_vps_locations_array', [], ['return' => 'array:vps_location'], 'Use this function to get a list of the Locations available for ordering. The id field in the return value is also needed to pass to the buy_vps functions.', false);
         api_register('get_vps_templates', [], ['return' => 'array:vps_template'], 'Get the currently available VPS templates for each server type.', false);
