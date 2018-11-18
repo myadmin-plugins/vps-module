@@ -231,18 +231,18 @@ class Plugin
          * @var \MyAdmin\Settings $settings
          **/
         $settings = $event->getSubject();
-		$settings->add_text_setting(self::$module, __('Credentials'), 'webuzo_license_key', __('Webuzo License Key'), __('API Credentials for Webuozo'), $settings->get_setting('WEBUZO_LICENSE_KEY'));
-		$settings->add_text_setting(self::$module, __('Slice Costs'), 'vps_ny_cost', __('VPS NY4 Multiplier'), __('This is the multiplier to a normal cost for an item to be hosted in NY.'), $settings->get_setting('VPS_NY_COST'));
-		$settings->add_text_setting(self::$module, __('Slice Amounts'), 'vps_slice_ram', __('Ram Per Slice'), __('Amount of ram in MB per VPS Slice'), $settings->get_setting('VPS_SLICE_RAM'));
-		$settings->add_text_setting(self::$module, __('Slice Amounts'), 'vps_slice_hd', __('HD Space Per Slice'), __('Amount of HD space in GB per VPS Slice'), $settings->get_setting('VPS_SLICE_HD'));
-		$settings->add_dropdown_setting(self::$module, __('Slice Amounts'), 'vps_bw_type', __('Bandwidth Limited by Total Traffic or Throttling'), __('Enable/Disable Sales Of This Type'), $settings->get_setting('VPS_BW_TYPE'), ['1', '2'], ['Throttled in mbps', 'Total GBytes Used']);
-		$settings->add_text_setting(self::$module, __('Slice Amounts'), 'vps_slice_bw', __('Bandwidth Limit Per Slice in Mbits/s  or Gbytes'), __('Amount of Bandwidth per slice.'), $settings->get_setting('VPS_SLICE_BW'));
-		$settings->add_text_setting(self::$module, __('Slice Amounts'), 'vps_slice_max', __('Max Slices Per Order'), __('Maximum amount of slices any one VPS can be.'), $settings->get_setting('VPS_SLICE_MAX'));
+		$settings->add_text_setting(self::$module, _('Credentials'), 'webuzo_license_key', _('Webuzo License Key'), _('API Credentials for Webuozo'), $settings->get_setting('WEBUZO_LICENSE_KEY'));
+		$settings->add_text_setting(self::$module, _('Slice Costs'), 'vps_ny_cost', _('VPS NY4 Multiplier'), _('This is the multiplier to a normal cost for an item to be hosted in NY.'), $settings->get_setting('VPS_NY_COST'));
+		$settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_ram', _('Ram Per Slice'), _('Amount of ram in MB per VPS Slice'), $settings->get_setting('VPS_SLICE_RAM'));
+		$settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_hd', _('HD Space Per Slice'), _('Amount of HD space in GB per VPS Slice'), $settings->get_setting('VPS_SLICE_HD'));
+		$settings->add_dropdown_setting(self::$module, _('Slice Amounts'), 'vps_bw_type', _('Bandwidth Limited by Total Traffic or Throttling'), _('Enable/Disable Sales Of This Type'), $settings->get_setting('VPS_BW_TYPE'), ['1', '2'], ['Throttled in mbps', 'Total GBytes Used']);
+		$settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_bw', _('Bandwidth Limit Per Slice in Mbits/s  or Gbytes'), _('Amount of Bandwidth per slice.'), $settings->get_setting('VPS_SLICE_BW'));
+		$settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_max', _('Max Slices Per Order'), _('Maximum amount of slices any one VPS can be.'), $settings->get_setting('VPS_SLICE_MAX'));
 		$settings->add_master_checkbox_setting(self::$module, 'Server Settings', self::$module, 'available', 'vps_available', 'Auto-Setup', '<p>Choose which servers are used for auto-server Setups.</p>');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_services', 'Active VPS', '<p>The current number of active VPS.</p>', 'count(vps.vps_id) as active_services');
 		$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'server_max', 'vps_server_max', 'Max VPS', '<p>The Maximum number of VPS that can be running on each server.</p>');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_slices', 'Active Slices', '<p>The current total slices from active VPS.</p>', 'sum(vps.vps_slices) as active_slices');
 		$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'server_max_slices', 'vps_server_max_slices', 'Max Slices', '<p>The Maximum number of total slices that can be running on each server.</p>');
-		$settings->add_dropdown_setting(self::$module, __('Out of Stock'), 'outofstock_vps', __('Out Of Stock VPS'), __('Enable/Disable Sales Of This Type'), $settings->get_setting('OUTOFSTOCK_VPS'), ['0', '1'], ['No', 'Yes']);
+		$settings->add_dropdown_setting(self::$module, _('Out of Stock'), 'outofstock_vps', _('Out Of Stock VPS'), _('Enable/Disable Sales Of This Type'), $settings->get_setting('OUTOFSTOCK_VPS'), ['0', '1'], ['No', 'Yes']);
 	}
 }
