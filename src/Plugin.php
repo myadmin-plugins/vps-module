@@ -133,7 +133,7 @@ class Plugin
 		$serviceTypes = run_event('get_service_types', false, self::$module);
 		$settings = get_module_settings(self::$module);
 		$slices = $regexMatch;
-		myadmin_log(self::$module, 'info', self::$name." Setting {$slices} Slices for {$settings['TBLNAME']} {$serviceInfo[$settings['PREFIX'].'_id']}", __LINE__, __FILE__);
+		myadmin_log(self::$module, 'info', self::$name." Setting {$slices} Slices for {$settings['TBLNAME']} {$serviceInfo[$settings['PREFIX'].'_id']}", __LINE__, __FILE__, self::$module);
 		function_requirements('get_coupon_cost');
 		$slice_cost = $serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_cost'];
 		$slice_cost = get_coupon_cost($slice_cost, $serviceInfo[$settings['PREFIX'].'_coupon']);
