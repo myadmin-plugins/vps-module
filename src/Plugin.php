@@ -174,7 +174,7 @@ class Plugin
                 $db->query("select * from queue_log where history_section='vpsorder' and history_type='{$serviceInfo[$settings['PREFIX'].'_id']}' and history_new_value=0");
                 if ($db->num_rows() > 0) {
                     $db->next_record(MYSQL_ASSOC);
-                    $db->query("update queue_log set history_new_value=1 where history_id='{$db->Record['history_id']}");
+                    $db->query("update queue_log set history_new_value=1 where history_id='{$db->Record['history_id']}'");
                 }
 				admin_email_vps_pending_setup($serviceInfo[$settings['PREFIX'].'_id']);
 			})->setReactivate(function ($service) {
