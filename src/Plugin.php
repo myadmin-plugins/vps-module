@@ -171,7 +171,7 @@ class Plugin
 				$db->query('update '.$settings['TABLE'].' set '.$settings['PREFIX']."_status='pending-setup' where ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
 				$GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
 				$GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
-                $db->query("select * from queue_log where history_section='vpsorder' and history_type='{$serviceInfo[$settings['PREFIX'].'_id']}' and history_new_value=0");
+                $db->query("select * from queue_log where history_section='".self::$module."order' and history_type='{$serviceInfo[$settings['PREFIX'].'_id']}' and history_new_value=0");
                 if ($db->num_rows() > 0) {
                     $db->next_record(MYSQL_ASSOC);
                     $db->query("update queue_log set history_new_value=1 where history_id='{$db->Record['history_id']}'");
