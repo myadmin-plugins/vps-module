@@ -48,56 +48,56 @@ class Plugin
 	public static function getHooks()
 	{
 		return [
-            'api.register' => [__CLASS__, 'apiRegister'],
-            'function.requirements' => [__CLASS__, 'getRequirements'],
+			'api.register' => [__CLASS__, 'apiRegister'],
+			'function.requirements' => [__CLASS__, 'getRequirements'],
 			self::$module.'.load_processing' => [__CLASS__, 'loadProcessing'],
 			self::$module.'.load_addons' => [__CLASS__, 'getAddon'],
 			self::$module.'.settings' => [__CLASS__, 'getSettings']
 		];
 	}
 
-    /**
-     * @param \Symfony\Component\EventDispatcher\GenericEvent $event
-     */
-    public static function getRequirements(GenericEvent $event)
-    {
-        $loader = $event->getSubject();
-        $loader->add_requirement('api_validate_buy_vps','/../vendor/detain/myadmin-vps-module/src/api.php');
-        $loader->add_requirement('api_buy_vps','/../vendor/detain/myadmin-vps-module/src/api.php');
-        $loader->add_requirement('api_buy_vps_admin','/../vendor/detain/myadmin-vps-module/src/api.php');
-    }
-    
-    /**
-     * @param \Symfony\Component\EventDispatcher\GenericEvent $event
-     */
-    public static function apiRegister(GenericEvent $event)
-    {
-        /**
-         * @var \ServiceHandler $subject
-         */
-        //$subject = $event->getSubject();
-        api_register_array('vps_slice_type', ['name' => 'string', 'type' => 'int', 'cost' => 'float', 'buyable' => 'int']);
-        api_register_array('vps_location', ['id' => 'int', 'name' => 'string']);
-        api_register_array('vps_template', ['type' => 'int', 'virtulization' => 'string', 'bits' => 'int', 'os' => 'string', 'version' => 'string', 'file' => 'string', 'title' => 'string']);
-        api_register_array('vps_platform', ['platform' => 'string', 'name' => 'string']);
-        api_register_array('vps_screenshot_return', ['status' => 'string', 'status_text' => 'string', 'url' => 'string', 'link' => 'string', 'js' => 'string']);
-        api_register_array('buy_vps_result_status', ['status' => 'string', 'status_text' => 'string', 'invoices' => 'string', 'cost' => 'float']);
-        api_register_array('validate_buy_vps_result_status', ['coupon_code' => 'int', 'service_cost' => 'float', 'slice_cost' => 'float', 'service_type' => 'int', 'repeat_slice_cost' => 'float', 'original_slice_cost' => 'float', 'original_cost' => 'float', 'repeat_service_cost' => 'float', 'monthly_service_cost' => 'float', 'custid' => 'int', 'os' => 'string', 'slices' => 'int', 'platform' => 'string', 'controlpanel' => 'string', 'period' => 'int', 'location' => 'int', 'version' => 'string', 'hostname' => 'string', 'coupon' => 'string', 'rootpass' => 'string', 'status_text' => 'string', 'status' => 'string']);
-        //api_register('vps_queue_stop', ['sid' => 'string', 'id' => 'int'], ['return' => 'result_status'], 'Cancel a License.', true, false);
-        api_register('vps_queue_stop', ['id' => 'int'], ['return' => 'result_status'], 'stops a vps', true);
-        api_register('vps_queue_start', ['id' => 'int'], ['return' => 'result_status'], 'start a vps', true);
-        api_register('vps_queue_restart', ['id' => 'int'], ['return' => 'result_status'], 'restart a vps', true);
-        api_register('get_vps_slice_types', [], ['return' => 'array:vps_slice_type'], 'We have several types of Servers available for use with VPS Hosting. You can get a list of the types available and  there cost per slice/unit by making a call to this function', false);
-        api_register('get_vps_locations_array', [], ['return' => 'array:vps_location'], 'Use this function to get a list of the Locations available for ordering. The id field in the return value is also needed to pass to the buy_vps functions.', false);
-        api_register('get_vps_templates', [], ['return' => 'array:vps_template'], 'Get the currently available VPS templates for each server type.', false);
-        //api_register('get_vps_platforms', [], ['return' => 'array'], 'Get the currently available VPS platforms.', FALSE);
-        api_register('get_vps_platforms_array', [], ['return' => 'array:vps_platform'], 'Use this function to get a list of the various platforms available for ordering. The platform field in the return value is also needed to pass to the buy_vps functions.', false);
-        api_register('api_validate_buy_vps', ['os' => 'string', 'slices' => 'int', 'platform' => 'string', 'controlpanel' => 'string', 'period' => 'int', 'location' => 'int', 'version' => 'string', 'hostname' => 'string', 'coupon' => 'string', 'rootpass' => 'string'], ['return' => 'validate_buy_vps_result_status'], 'Checks if the parameters for your order pass validation and let you know if there are any errors. It will also give you information on the pricing breakdown.');
-        api_register('api_buy_vps', ['os' => 'string', 'slices' => 'int', 'platform' => 'string', 'controlpanel' => 'string', 'period' => 'int', 'location' => 'int', 'version' => 'string', 'hostname' => 'string', 'coupon' => 'string', 'rootpass' => 'string'], ['return' => 'buy_vps_result_status'], 'Places a VPS order in our system. These are the same parameters as api_validate_buy_vps..   Returns a comma seperated list of invoices if any need paid.');
-        api_register('api_buy_vps_admin', ['os' => 'string', 'slices' => 'int', 'platform' => 'string', 'controlpanel' => 'string', 'period' => 'int', 'location' => 'int', 'version' => 'int', 'hostname' => 'string', 'coupon' => 'string', 'rootpass' => 'string', 'server' => 'int'], ['return' => 'buy_vps_result_status'], 'Purchase a VPS (admins only).   Returns a comma seperated list of invoices if any need paid.  Same as client function but allows specifying which server to install to if there are resources available on the specified server.');
-        api_register('vps_screenshot', ['id' => 'int'], ['return' => 'vps_screenshot_return'], 'This command returns a link to an animated screenshot of your VPS.   Only works currently with KVM VPS servers');
-        api_register('vps_get_server_name', ['id' => 'int'], ['return' => 'string'], 'Get the name of the vps master/host server your giving the id for');
-    }    
+	/**
+	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
+	 */
+	public static function getRequirements(GenericEvent $event)
+	{
+		$loader = $event->getSubject();
+		$loader->add_requirement('api_validate_buy_vps', '/../vendor/detain/myadmin-vps-module/src/api.php');
+		$loader->add_requirement('api_buy_vps', '/../vendor/detain/myadmin-vps-module/src/api.php');
+		$loader->add_requirement('api_buy_vps_admin', '/../vendor/detain/myadmin-vps-module/src/api.php');
+	}
+	
+	/**
+	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
+	 */
+	public static function apiRegister(GenericEvent $event)
+	{
+		/**
+		 * @var \ServiceHandler $subject
+		 */
+		//$subject = $event->getSubject();
+		api_register_array('vps_slice_type', ['name' => 'string', 'type' => 'int', 'cost' => 'float', 'buyable' => 'int']);
+		api_register_array('vps_location', ['id' => 'int', 'name' => 'string']);
+		api_register_array('vps_template', ['type' => 'int', 'virtulization' => 'string', 'bits' => 'int', 'os' => 'string', 'version' => 'string', 'file' => 'string', 'title' => 'string']);
+		api_register_array('vps_platform', ['platform' => 'string', 'name' => 'string']);
+		api_register_array('vps_screenshot_return', ['status' => 'string', 'status_text' => 'string', 'url' => 'string', 'link' => 'string', 'js' => 'string']);
+		api_register_array('buy_vps_result_status', ['status' => 'string', 'status_text' => 'string', 'invoices' => 'string', 'cost' => 'float']);
+		api_register_array('validate_buy_vps_result_status', ['coupon_code' => 'int', 'service_cost' => 'float', 'slice_cost' => 'float', 'service_type' => 'int', 'repeat_slice_cost' => 'float', 'original_slice_cost' => 'float', 'original_cost' => 'float', 'repeat_service_cost' => 'float', 'monthly_service_cost' => 'float', 'custid' => 'int', 'os' => 'string', 'slices' => 'int', 'platform' => 'string', 'controlpanel' => 'string', 'period' => 'int', 'location' => 'int', 'version' => 'string', 'hostname' => 'string', 'coupon' => 'string', 'rootpass' => 'string', 'status_text' => 'string', 'status' => 'string']);
+		//api_register('vps_queue_stop', ['sid' => 'string', 'id' => 'int'], ['return' => 'result_status'], 'Cancel a License.', true, false);
+		api_register('vps_queue_stop', ['id' => 'int'], ['return' => 'result_status'], 'stops a vps', true);
+		api_register('vps_queue_start', ['id' => 'int'], ['return' => 'result_status'], 'start a vps', true);
+		api_register('vps_queue_restart', ['id' => 'int'], ['return' => 'result_status'], 'restart a vps', true);
+		api_register('get_vps_slice_types', [], ['return' => 'array:vps_slice_type'], 'We have several types of Servers available for use with VPS Hosting. You can get a list of the types available and  there cost per slice/unit by making a call to this function', false);
+		api_register('get_vps_locations_array', [], ['return' => 'array:vps_location'], 'Use this function to get a list of the Locations available for ordering. The id field in the return value is also needed to pass to the buy_vps functions.', false);
+		api_register('get_vps_templates', [], ['return' => 'array:vps_template'], 'Get the currently available VPS templates for each server type.', false);
+		//api_register('get_vps_platforms', [], ['return' => 'array'], 'Get the currently available VPS platforms.', FALSE);
+		api_register('get_vps_platforms_array', [], ['return' => 'array:vps_platform'], 'Use this function to get a list of the various platforms available for ordering. The platform field in the return value is also needed to pass to the buy_vps functions.', false);
+		api_register('api_validate_buy_vps', ['os' => 'string', 'slices' => 'int', 'platform' => 'string', 'controlpanel' => 'string', 'period' => 'int', 'location' => 'int', 'version' => 'string', 'hostname' => 'string', 'coupon' => 'string', 'rootpass' => 'string'], ['return' => 'validate_buy_vps_result_status'], 'Checks if the parameters for your order pass validation and let you know if there are any errors. It will also give you information on the pricing breakdown.');
+		api_register('api_buy_vps', ['os' => 'string', 'slices' => 'int', 'platform' => 'string', 'controlpanel' => 'string', 'period' => 'int', 'location' => 'int', 'version' => 'string', 'hostname' => 'string', 'coupon' => 'string', 'rootpass' => 'string'], ['return' => 'buy_vps_result_status'], 'Places a VPS order in our system. These are the same parameters as api_validate_buy_vps..   Returns a comma seperated list of invoices if any need paid.');
+		api_register('api_buy_vps_admin', ['os' => 'string', 'slices' => 'int', 'platform' => 'string', 'controlpanel' => 'string', 'period' => 'int', 'location' => 'int', 'version' => 'int', 'hostname' => 'string', 'coupon' => 'string', 'rootpass' => 'string', 'server' => 'int'], ['return' => 'buy_vps_result_status'], 'Purchase a VPS (admins only).   Returns a comma seperated list of invoices if any need paid.  Same as client function but allows specifying which server to install to if there are resources available on the specified server.');
+		api_register('vps_screenshot', ['id' => 'int'], ['return' => 'vps_screenshot_return'], 'This command returns a link to an animated screenshot of your VPS.   Only works currently with KVM VPS servers');
+		api_register('vps_get_server_name', ['id' => 'int'], ['return' => 'string'], 'Get the name of the vps master/host server your giving the id for');
+	}
 
 
 	/**
@@ -225,12 +225,12 @@ class Plugin
 	/**
 	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
 	 */
-    public static function getSettings(GenericEvent $event)
-    {
-        /**
-         * @var \MyAdmin\Settings $settings
-         **/
-        $settings = $event->getSubject();
+	public static function getSettings(GenericEvent $event)
+	{
+		/**
+		 * @var \MyAdmin\Settings $settings
+		 **/
+		$settings = $event->getSubject();
 		$settings->add_text_setting(self::$module, _('Credentials'), 'webuzo_license_key', _('Webuzo License Key'), _('API Credentials for Webuozo'), $settings->get_setting('WEBUZO_LICENSE_KEY'));
 		$settings->add_text_setting(self::$module, _('Slice Costs'), 'vps_ny_cost', _('VPS NY4 Multiplier'), _('This is the multiplier to a normal cost for an item to be hosted in NY.'), $settings->get_setting('VPS_NY_COST'));
 		$settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_ram', _('Ram Per Slice'), _('Amount of ram in MB per VPS Slice'), $settings->get_setting('VPS_SLICE_RAM'));
@@ -238,13 +238,13 @@ class Plugin
 		$settings->add_dropdown_setting(self::$module, _('Slice Amounts'), 'vps_bw_type', _('Bandwidth Limited by Total Traffic or Throttling'), _('Enable/Disable Sales Of This Type'), $settings->get_setting('VPS_BW_TYPE'), ['1', '2'], ['Throttled in mbps', 'Total GBytes Used']);
 		$settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_bw', _('Bandwidth Limit Per Slice in Mbits/s  or Gbytes'), _('Amount of Bandwidth per slice.'), $settings->get_setting('VPS_SLICE_BW'));
 		$settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_max', _('Max Slices Per Order'), _('Maximum amount of slices any one VPS can be.'), $settings->get_setting('VPS_SLICE_MAX'));
-        $settings->setTarget('module');
+		$settings->setTarget('module');
 		$settings->add_master_checkbox_setting(self::$module, 'Server Settings', self::$module, 'available', 'vps_available', 'Auto-Setup', '<p>Choose which servers are used for auto-server Setups.</p>');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_services', 'Active VPS', '<p>The current number of active VPS.</p>', 'count(vps.vps_id) as active_services');
 		$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'server_max', 'vps_server_max', 'Max VPS', '<p>The Maximum number of VPS that can be running on each server.</p>');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_slices', 'Active Slices', '<p>The current total slices from active VPS.</p>', 'sum(vps.vps_slices) as active_slices');
 		$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'server_max_slices', 'vps_server_max_slices', 'Max Slices', '<p>The Maximum number of total slices that can be running on each server.</p>');
 		$settings->add_dropdown_setting(self::$module, _('Out of Stock'), 'outofstock_vps', _('Out Of Stock VPS'), _('Enable/Disable Sales Of This Type'), $settings->get_setting('OUTOFSTOCK_VPS'), ['0', '1'], ['No', 'Yes']);
-        $settings->setTarget('global');
+		$settings->setTarget('global');
 	}
 }
