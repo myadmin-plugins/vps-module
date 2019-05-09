@@ -240,6 +240,7 @@ class Plugin
 		$settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_max', _('Max Slices Per Order'), _('Maximum amount of slices any one VPS can be.'), $settings->get_setting('VPS_SLICE_MAX'));
 		$settings->setTarget('module');
 		$settings->add_master_checkbox_setting(self::$module, 'Server Settings', self::$module, 'available', 'vps_available', 'Auto-Setup', '<p>Choose which servers are used for auto-server Setups.</p>');
+        //$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'root', 'vps_root', 'VPS Root', '<p>Password to connect to server</p>');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_services', 'Active VPS', '<p>The current number of active VPS.</p>', 'count(vps.vps_id) as active_services');
 		$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'server_max', 'vps_server_max', 'Max VPS', '<p>The Maximum number of VPS that can be running on each server.</p>');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_slices', 'Active Slices', '<p>The current total slices from active VPS.</p>', 'sum(vps.vps_slices) as active_slices');
