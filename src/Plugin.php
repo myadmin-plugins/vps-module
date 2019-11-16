@@ -191,7 +191,7 @@ class Plugin
 				$smarty->assign('vps_name', $serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']);
 				$email = $smarty->fetch('email/admin/vps_reactivated.tpl');
 				$subject = $serviceInfo[$settings['TITLE_FIELD']].' '.$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name'].' '.$settings['TBLNAME'].' Reactivated';
-				(new MyAdmin\Mail())->adminMail($subject, $email, false, 'admin/vps_reactivated.tpl');
+				(new \MyAdmin\Mail())->adminMail($subject, $email, false, 'admin/vps_reactivated.tpl');
 			})->setDisable(function ($service) {
 			})->setTerminate(function ($service) {
 				$serviceInfo = $service->getServiceInfo();
