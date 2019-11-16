@@ -191,11 +191,7 @@ class Plugin
 				$smarty->assign('vps_name', $serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']);
 				$email = $smarty->fetch('email/admin/vps_reactivated.tpl');
 				$subject = $serviceInfo[$settings['TITLE_FIELD']].' '.$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name'].' '.$settings['TBLNAME'].' Reactivated';
-				$headers = '';
-				$headers .= 'MIME-Version: 1.0'.PHP_EOL;
-				$headers .= 'Content-type: text/html; charset=UTF-8'.PHP_EOL;
-				$headers .= 'From: '.TITLE.' <'.EMAIL_FROM.'>'.PHP_EOL;
-				admin_mail($subject, $email, $headers, false, 'admin/vps_reactivated.tpl');
+				(new MyAdmin\Mail())->adminMail($subject, $email, false, 'admin/vps_reactivated.tpl');
 			})->setDisable(function ($service) {
 			})->setTerminate(function ($service) {
 				$serviceInfo = $service->getServiceInfo();
@@ -240,7 +236,7 @@ class Plugin
 		$settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_max', _('Max Slices Per Order'), _('Maximum amount of slices any one VPS can be.'), $settings->get_setting('VPS_SLICE_MAX'));
 		$settings->setTarget('module');
 		$settings->add_master_checkbox_setting(self::$module, 'Server Settings', self::$module, 'available', 'vps_available', 'Auto-Setup', '<p>Choose which servers are used for auto-server Setups.</p>');
-        //$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'root', 'vps_root', 'VPS Root', '<p>Password to connect to server</p>');
+		//$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'root', 'vps_root', 'VPS Root', '<p>Password to connect to server</p>');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_services', 'Active VPS', '<p>The current number of active VPS.</p>', 'count(vps.vps_id) as active_services');
 		$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'server_max', 'vps_server_max', 'Max VPS', '<p>The Maximum number of VPS that can be running on each server.</p>');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_slices', 'Active Slices', '<p>The current total slices from active VPS.</p>', 'sum(vps.vps_slices) as active_slices');
