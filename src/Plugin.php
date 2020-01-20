@@ -237,6 +237,7 @@ class Plugin
 		$settings->setTarget('module');
 		$settings->add_master_checkbox_setting(self::$module, 'Server Settings', self::$module, 'available', 'vps_available', 'Auto-Setup', '<p>Choose which servers are used for auto-server Setups.</p>');
 		//$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'root', 'vps_root', 'VPS Root', '<p>Password to connect to server</p>');
+		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'free_ips', 'Free IPS', '<p>The current number of free IPS.</p>', '(SELECT COUNT(ips_ip) AS free_ips FROM vps_ips WHERE ips_used = 0 AND ips_usable = 1 and ips_server=vps_masters.vps_id GROUP BY ips_server) free_ips');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_services', 'Active VPS', '<p>The current number of active VPS.</p>', 'count(vps.vps_id) as active_services');
 		$settings->add_master_text_setting(self::$module, 'Server Settings', self::$module, 'server_max', 'vps_server_max', 'Max VPS', '<p>The Maximum number of VPS that can be running on each server.</p>');
 		$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_slices', 'Active Slices', '<p>The current total slices from active VPS.</p>', 'sum(vps.vps_slices) as active_slices');
