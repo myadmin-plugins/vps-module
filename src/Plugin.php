@@ -86,7 +86,8 @@ class Plugin
 		//api_register('vps_queue_stop', ['sid' => 'string', 'id' => 'int'], ['return' => 'result_status'], 'Cancel a License.', true, false);
 		api_register('vps_queue_stop', ['id' => 'int'], ['return' => 'result_status'], 'stops a vps', true);
 		api_register('vps_queue_start', ['id' => 'int'], ['return' => 'result_status'], 'start a vps', true);
-		api_register('vps_queue_restart', ['id' => 'int'], ['return' => 'result_status'], 'restart a vps', true);
+        api_register('vps_queue_restart', ['id' => 'int'], ['return' => 'result_status'], 'restart a vps', true);
+        api_register('vps_queue_backup', ['id' => 'int', 'name' => 'string'], ['return' => 'result_status'], 'initializes a backup of a vps calling the backup the name parameter or "snap" if blank', true);
 		api_register('get_vps_slice_types', [], ['return' => 'array:vps_slice_type'], 'We have several types of Servers available for use with VPS Hosting. You can get a list of the types available and  there cost per slice/unit by making a call to this function', false);
 		api_register('get_vps_locations_array', [], ['return' => 'array:vps_location'], 'Use this function to get a list of the Locations available for ordering. The id field in the return value is also needed to pass to the buy_vps functions.', false);
 		api_register('get_vps_templates', [], ['return' => 'array:vps_template'], 'Get the currently available VPS templates for each server type.', false);
