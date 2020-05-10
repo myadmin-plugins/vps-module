@@ -77,7 +77,8 @@ class Plugin
 		 */
 		//$subject = $event->getSubject();
 		api_register_array('vps_slice_type', ['name' => 'string', 'type' => 'int', 'cost' => 'float', 'buyable' => 'int']);
-		api_register_array('idNameArray', ['id' => 'int', 'name' => 'string']);
+        api_register_array('idNameArray', ['id' => 'int', 'name' => 'string']);
+        api_register_array('idNameSizeUrlArray', ['id' => 'int', 'name' => 'string', 'size' => 'int', 'url' => 'string']);
 		api_register_array('vps_template', ['type' => 'int', 'virtulization' => 'string', 'bits' => 'int', 'os' => 'string', 'version' => 'string', 'file' => 'string', 'title' => 'string']);
 		api_register_array('vps_platform', ['platform' => 'string', 'name' => 'string']);
 		api_register_array('vps_screenshot_return', ['status' => 'string', 'status_text' => 'string', 'url' => 'string', 'link' => 'string', 'js' => 'string']);
@@ -90,11 +91,11 @@ class Plugin
         
         // VPS Backups Related Code
         api_register('vps_queue_backup', ['id' => 'int', 'name' => 'string'], ['return' => 'result_status'], 'initializes a backup of a vps calling the backup the name parameter or "snap" if blank', true);
-        //api_register('vps_queue_restore', ['id' => 'int', 'name' => 'string'], ['return' => 'result_status'], 'initializes a restoration of a vps calling the backup the name parameter or "snap" if blank', true);
         api_register('vps_backup_delete', ['id' => 'int', 'name' => 'string'], ['return' => 'result_status'], 'deletes one of the vps backups', true);
+        api_register('get_vps_backups', [], ['return' => 'array:idNameSizeUrlArray'], 'Returns a list of all the current VPS backups indicating the VPS ID, the Name of the backup, file size, and a download URL', true);
+        //api_register('vps_queue_restore', ['id' => 'int', 'name' => 'string'], ['return' => 'result_status'], 'initializes a restoration of a vps calling the backup the name parameter or "snap" if blank', true);
         //api_register('get_vps_backup', ['id' => 'int', 'name' => 'string'], ['return' => 'string'], 'Returns a downloaded copy of the backup', true);
-        api_register('get_vps_backup_url', ['id' => 'int', 'name' => 'string'], ['return' => 'string'], 'Returns a sharable HTTP link to the backup downloaded', true);
-        api_register('get_vps_backups', [], ['return' => 'array:idNameArray'], 'Returns a list of all the current VPS backups indicating the VPS ID and Name of each backup', true);
+        //api_register('get_vps_backup_url', ['id' => 'int', 'name' => 'string'], ['return' => 'string'], 'Returns a sharable HTTP link to the backup downloaded', true);
         
 		api_register('get_vps_slice_types', [], ['return' => 'array:vps_slice_type'], 'We have several types of Servers available for use with VPS Hosting. You can get a list of the types available and  there cost per slice/unit by making a call to this function', false);
 		api_register('get_vps_locations_array', [], ['return' => 'array:idNameArray'], 'Use this function to get a list of the Locations available for ordering. The id field in the return value is also needed to pass to the buy_vps functions.', false);
