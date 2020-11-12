@@ -150,8 +150,14 @@ class Plugin
 		$slice_cost = round($slice_cost * get_frequency_discount($serviceInfo[$settings['PREFIX'].'_frequency']), 2);
 		$db = get_module_db(self::$module);
 		$db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_cost='".($slice_cost * $slices)."', {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
+		$q1 = "update {$settings['TABLE']} set {$settings['PREFIX']}_cost='".($slice_cost * $slices)."', {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'";
+		$GLOBALS['tf']->history->add('query_log', 'update', $serviceInfo[$settings['PREFIX'].'_id'], $q1, $serviceInfo[$settings['PREFIX'].'_custid']);
 		$db->query("update repeat_invoices set repeat_invoices_description='{$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', repeat_invoices_cost='".($slice_cost * $slices)."' where repeat_invoices_id='{$serviceInfo[$settings['PREFIX'].'_invoice']}'", __LINE__, __FILE__);
+		$q2 = "update repeat_invoices set repeat_invoices_description='{$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', repeat_invoices_cost='".($slice_cost * $slices)."' where repeat_invoices_id='{$serviceInfo[$settings['PREFIX'].'_invoice']}'";
+		$GLOBALS['tf']->history->add('query_log', 'update', $serviceInfo[$settings['PREFIX'].'_invoice'], $q2, $serviceInfo[$settings['PREFIX'].'_custid']);
 		$db->query("update invoices set invoices_description='(Repeat Invoice: {$serviceInfo[$settings['PREFIX'].'_invoice']}) {$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', invoices_amount='".($slice_cost * $slices)."' where invoices_type=1 and invoices_paid=0 and invoices_extra='{$serviceInfo[$settings['PREFIX'].'_invoice']}'", __LINE__, __FILE__);
+		$q3 = "update invoices set invoices_description='(Repeat Invoice: {$serviceInfo[$settings['PREFIX'].'_invoice']}) {$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', invoices_amount='".($slice_cost * $slices)."' where invoices_type=1 and invoices_paid=0 and invoices_extra='{$serviceInfo[$settings['PREFIX'].'_invoice']}'";
+		$GLOBALS['tf']->history->add('query_log', 'update', '', $q3, $serviceInfo[$settings['PREFIX'].'_custid']);
 		if (!in_array($serviceInfo['vps_status'], ['pending'])) {
 			if ($deferUpgradeViaTicket == true) {
 				add_output('Thank you for your upgrade request. A ticket has been automatically opened for you. Please allow us 24 hours to complete your upgrade. You can check the status of your ticket here');
