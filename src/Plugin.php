@@ -157,9 +157,16 @@ class Plugin
 		if ($repeatInvoiceObj->loaded === true) {
 			$repeatInvoiceObj->setDescription($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name'].' '.$slices.' Slices')->setCost($slice_cost * $slices)->save();
 		}
-		$db->query("update invoices set invoices_description='(Repeat Invoice: {$serviceInfo[$settings['PREFIX'].'_invoice']}) {$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', invoices_amount='".($slice_cost * $slices)."' where invoices_type=1 and invoices_paid=0 and invoices_extra='{$serviceInfo[$settings['PREFIX'].'_invoice']}'", __LINE__, __FILE__);
-		$q3 = "update invoices set invoices_description='(Repeat Invoice: {$serviceInfo[$settings['PREFIX'].'_invoice']}) {$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']} {$slices} Slices', invoices_amount='".($slice_cost * $slices)."' where invoices_type=1 and invoices_paid=0 and invoices_extra='{$serviceInfo[$settings['PREFIX'].'_invoice']}'";
-		$GLOBALS['tf']->history->add('query_log', 'update', '', $q3, $serviceInfo[$settings['PREFIX'].'_custid']);
+		$invoiceObj = new \MyAdmin\Orm\Invoice();
+		$invoices = $invoiceObj->find([['type','=',1],['paid','=',0],['extra','=',$serviceInfo[$settings['PREFIX'].'_invoice']]]);
+		foreach ($invoices as $invoiceId) {
+			$invoiceObj->load_real($invoiceId);
+			if ($invoiceObj->loaded === true) {
+				$invoiceObj->setDescription('(Repeat Invoice: '.$serviceInfo[$settings['PREFIX'].'_invoice'].') '.$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name'].' '.$slices.' Slices')
+					->setAmount($slice_cost * $slices)
+					->save();
+			}
+		}
 		if (!in_array($serviceInfo['vps_status'], ['pending'])) {
 			if ($deferUpgradeViaTicket == true) {
 				add_output('Thank you for your upgrade request. A ticket has been automatically opened for you. Please allow us 24 hours to complete your upgrade. You can check the status of your ticket here');
