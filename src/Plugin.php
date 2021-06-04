@@ -66,7 +66,7 @@ class Plugin
 		$loader->add_requirement('api_buy_vps', '/../vendor/detain/myadmin-vps-module/src/api.php');
 		$loader->add_requirement('api_buy_vps_admin', '/../vendor/detain/myadmin-vps-module/src/api.php');
 	}
-	
+
 	/**
 	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
 	 */
@@ -88,7 +88,7 @@ class Plugin
 		api_register('vps_queue_stop', ['id' => 'int'], ['return' => 'result_status'], 'stops a vps', true);
 		api_register('vps_queue_start', ['id' => 'int'], ['return' => 'result_status'], 'start a vps', true);
 		api_register('vps_queue_restart', ['id' => 'int'], ['return' => 'result_status'], 'restart a vps', true);
-		
+
 		// VPS Backups Related Code
 		api_register('vps_queue_backup', ['id' => 'int', 'name' => 'string'], ['return' => 'result_status'], 'initializes a backup of a vps calling the backup the name parameter or "snap" if blank', true);
 		api_register('vps_backup_delete', ['id' => 'int', 'name' => 'string'], ['return' => 'result_status'], 'deletes one of the vps backups', true);
@@ -96,7 +96,7 @@ class Plugin
 		//api_register('vps_queue_restore', ['id' => 'int', 'name' => 'string'], ['return' => 'result_status'], 'initializes a restoration of a vps calling the backup the name parameter or "snap" if blank', true);
 		//api_register('get_vps_backup', ['id' => 'int', 'name' => 'string'], ['return' => 'string'], 'Returns a downloaded copy of the backup', true);
 		//api_register('get_vps_backup_url', ['id' => 'int', 'name' => 'string'], ['return' => 'string'], 'Returns a sharable HTTP link to the backup downloaded', true);
-		
+
 		api_register('get_vps_slice_types', [], ['return' => 'array:vps_slice_type'], 'We have several types of Servers available for use with VPS Hosting. You can get a list of the types available and  there cost per slice/unit by making a call to this function', false);
 		api_register('get_vps_locations_array', [], ['return' => 'array:idNameArray'], 'Use this function to get a list of the Locations available for ordering. The id field in the return value is also needed to pass to the buy_vps functions.', false);
 		api_register('get_vps_templates', [], ['return' => 'array:vps_template'], 'Get the currently available VPS templates for each server type.', false);
@@ -147,15 +147,18 @@ class Plugin
 		function_requirements('get_coupon_cost');
 		$slice_cost = $serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_cost'];
 		$slice_cost = get_coupon_cost($slice_cost, $serviceInfo[$settings['PREFIX'].'_coupon']);
-		$slice_cost = round($slice_cost * get_frequency_discount($serviceInfo[$settings['PREFIX'].'_frequency']), 2);
+		$costInfo = get_service_cost($serviceInfo, self::$module);
+		$slice_cost = round($slice_cost * get_frequency_discount($costInfo['frequency']), 2);
 		$db = get_module_db(self::$module);
-		$db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_cost='".($slice_cost * $slices)."', {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
-		$q1 = "update {$settings['TABLE']} set {$settings['PREFIX']}_cost='".($slice_cost * $slices)."', {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'";
+		$db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
+		$q1 = "update {$settings['TABLE']} set {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'";
 		$GLOBALS['tf']->history->add('query_log', 'update', $serviceInfo[$settings['PREFIX'].'_id'], $q1, $serviceInfo[$settings['PREFIX'].'_custid']);
 		$repeatInvoiceObj = new \MyAdmin\Orm\Repeat_Invoice();
 		$repeatInvoiceObj->load_real($serviceInfo[$settings['PREFIX'].'_invoice']);
 		if ($repeatInvoiceObj->loaded === true) {
-			$repeatInvoiceObj->setDescription($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name'].' '.$slices.' Slices')->setCost($slice_cost * $slices)->save();
+			$repeatInvoiceObj->setDescription($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name'].' '.$slices.' Slices')
+				->setCost($slice_cost * $slices)
+				->save();
 		}
 		$invoiceObj = new \MyAdmin\Orm\Invoice();
 		$invoices = $invoiceObj->find([['type','=',1],['paid','=',0],['extra','=',$serviceInfo[$settings['PREFIX'].'_invoice']]]);
