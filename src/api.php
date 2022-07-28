@@ -24,19 +24,19 @@
  */
 function api_validate_buy_vps($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass)
 {
-	//if ($GLOBALS['tf']->ima == 'admin')
-	$custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
-	function_requirements('validate_buy_vps');
-	$return = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass);
-	$return['status_text'] = implode("\n", $return['errors']);
-	if ($return['continue'] === true) {
-		$return['status'] = 'ok';
-	} else {
-		$return['status'] = 'error';
-	}
-	unset($return['continue']);
-	unset($return['errors']);
-	return $return;
+    //if ($GLOBALS['tf']->ima == 'admin')
+    $custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
+    function_requirements('validate_buy_vps');
+    $return = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass);
+    $return['status_text'] = implode("\n", $return['errors']);
+    if ($return['continue'] === true) {
+        $return['status'] = 'ok';
+    } else {
+        $return['status'] = 'error';
+    }
+    unset($return['continue']);
+    unset($return['errors']);
+    return $return;
 }
 
 /**
@@ -56,49 +56,49 @@ function api_validate_buy_vps($os, $slices, $platform, $controlpanel, $period, $
  */
 function api_buy_vps($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass)
 {
-	$custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
-	function_requirements('validate_buy_vps');
-	$validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass);
-	$continue = $validation['continue'];
-	$errors = $validation['errors'];
-	$coupon_code = $validation['coupon_code'];
-	$service_cost = $validation['service_cost'];
-	$slice_cost = $validation['slice_cost'];
-	$service_type = $validation['service_type'];
-	$repeat_slice_cost = $validation['repeat_slice_cost'];
-	$original_slice_cost = $validation['original_slice_cost'];
-	$original_cost = $validation['original_cost'];
-	$repeat_service_cost = $validation['repeat_service_cost'];
-	$monthly_service_cost = $validation['monthly_service_cost'];
-	$custid = $validation['custid'];
-	$os = $validation['os'];
-	$slices = $validation['slices'];
-	$platform = $validation['platform'];
-	$controlpanel = $validation['controlpanel'];
-	$period = $validation['period'];
-	$location = $validation['location'];
-	$version = $validation['version'];
-	$hostname = $validation['hostname'];
-	$coupon = $validation['coupon'];
-	$rootpass = $validation['rootpass'];
-	$return = [];
-	$return['invoices'] = '';
-	$return['cost'] = $service_cost;
-	if ($continue === true) {
-		function_requirements('place_buy_vps');
-		$order_response = place_buy_vps($coupon_code, $service_cost, $slice_cost, $service_type, $original_slice_cost, $original_cost, $repeat_service_cost, $custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $rootpass);
-		$total_cost = $order_response['total_cost'];
-		$real_iids = $order_response['real_iids'];
-		$serviceid = $order_response['serviceid'];
-		$return['status'] = 'ok';
-		$return['status_text'] = $serviceid;
-		$return['invoices'] = implode(',', $real_iids);
-		$return['cost'] = $total_cost;
-	} else {
-		$return['status'] = 'error';
-		$return['status_text'] = implode("\n", $errors);
-	}
-	return $return;
+    $custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
+    function_requirements('validate_buy_vps');
+    $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass);
+    $continue = $validation['continue'];
+    $errors = $validation['errors'];
+    $coupon_code = $validation['coupon_code'];
+    $service_cost = $validation['service_cost'];
+    $slice_cost = $validation['slice_cost'];
+    $service_type = $validation['service_type'];
+    $repeat_slice_cost = $validation['repeat_slice_cost'];
+    $original_slice_cost = $validation['original_slice_cost'];
+    $original_cost = $validation['original_cost'];
+    $repeat_service_cost = $validation['repeat_service_cost'];
+    $monthly_service_cost = $validation['monthly_service_cost'];
+    $custid = $validation['custid'];
+    $os = $validation['os'];
+    $slices = $validation['slices'];
+    $platform = $validation['platform'];
+    $controlpanel = $validation['controlpanel'];
+    $period = $validation['period'];
+    $location = $validation['location'];
+    $version = $validation['version'];
+    $hostname = $validation['hostname'];
+    $coupon = $validation['coupon'];
+    $rootpass = $validation['rootpass'];
+    $return = [];
+    $return['invoices'] = '';
+    $return['cost'] = $service_cost;
+    if ($continue === true) {
+        function_requirements('place_buy_vps');
+        $order_response = place_buy_vps($coupon_code, $service_cost, $slice_cost, $service_type, $original_slice_cost, $original_cost, $repeat_service_cost, $custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $rootpass);
+        $total_cost = $order_response['total_cost'];
+        $real_iids = $order_response['real_iids'];
+        $serviceid = $order_response['serviceid'];
+        $return['status'] = 'ok';
+        $return['status_text'] = $serviceid;
+        $return['invoices'] = implode(',', $real_iids);
+        $return['cost'] = $total_cost;
+    } else {
+        $return['status'] = 'error';
+        $return['status_text'] = implode("\n", $errors);
+    }
+    return $return;
 }
 
 /**
@@ -119,52 +119,52 @@ function api_buy_vps($os, $slices, $platform, $controlpanel, $period, $location,
  */
 function api_buy_vps_admin($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $server = 0)
 {
-	if ($GLOBALS['tf']->ima != 'admin') {
-		$server = 0;
-	} else {
-		$server = (int)$server;
-	}
-	$custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
-	function_requirements('validate_buy_vps');
-	$validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass);
-	$continue = $validation['continue'];
-	$errors = $validation['errors'];
-	$coupon_code = $validation['coupon_code'];
-	$service_cost = $validation['service_cost'];
-	$slice_cost = $validation['slice_cost'];
-	$service_type = $validation['service_type'];
-	$repeat_slice_cost = $validation['repeat_slice_cost'];
-	$original_slice_cost = $validation['original_slice_cost'];
-	$original_cost = $validation['original_cost'];
-	$repeat_service_cost = $validation['repeat_service_cost'];
-	$monthly_service_cost = $validation['monthly_service_cost'];
-	$custid = $validation['custid'];
-	$os = $validation['os'];
-	$slices = $validation['slices'];
-	$platform = $validation['platform'];
-	$controlpanel = $validation['controlpanel'];
-	$period = $validation['period'];
-	$location = $validation['location'];
-	$version = $validation['version'];
-	$hostname = $validation['hostname'];
-	$coupon = $validation['coupon'];
-	$rootpass = $validation['rootpass'];
-	$return = [];
-	$return['invoices'] = '';
-	$return['cost'] = $service_cost;
-	if ($continue === true) {
-		function_requirements('place_buy_vps');
-		$order_response = place_buy_vps($coupon_code, $service_cost, $slice_cost, $service_type, $original_slice_cost, $original_cost, $repeat_service_cost, $custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $rootpass, $server);
-		$total_cost = $order_response['total_cost'];
-		$real_iids = $order_response['real_iids'];
-		$serviceid = $order_response['serviceid'];
-		$return['status'] = 'ok';
-		$return['status_text'] = $serviceid;
-		$return['invoices'] = implode(',', $real_iids);
-		$return['cost'] = $total_cost;
-	} else {
-		$return['status'] = 'error';
-		$return['status_text'] = implode("\n", $errors);
-	}
-	return $return;
+    if ($GLOBALS['tf']->ima != 'admin') {
+        $server = 0;
+    } else {
+        $server = (int)$server;
+    }
+    $custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
+    function_requirements('validate_buy_vps');
+    $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass);
+    $continue = $validation['continue'];
+    $errors = $validation['errors'];
+    $coupon_code = $validation['coupon_code'];
+    $service_cost = $validation['service_cost'];
+    $slice_cost = $validation['slice_cost'];
+    $service_type = $validation['service_type'];
+    $repeat_slice_cost = $validation['repeat_slice_cost'];
+    $original_slice_cost = $validation['original_slice_cost'];
+    $original_cost = $validation['original_cost'];
+    $repeat_service_cost = $validation['repeat_service_cost'];
+    $monthly_service_cost = $validation['monthly_service_cost'];
+    $custid = $validation['custid'];
+    $os = $validation['os'];
+    $slices = $validation['slices'];
+    $platform = $validation['platform'];
+    $controlpanel = $validation['controlpanel'];
+    $period = $validation['period'];
+    $location = $validation['location'];
+    $version = $validation['version'];
+    $hostname = $validation['hostname'];
+    $coupon = $validation['coupon'];
+    $rootpass = $validation['rootpass'];
+    $return = [];
+    $return['invoices'] = '';
+    $return['cost'] = $service_cost;
+    if ($continue === true) {
+        function_requirements('place_buy_vps');
+        $order_response = place_buy_vps($coupon_code, $service_cost, $slice_cost, $service_type, $original_slice_cost, $original_cost, $repeat_service_cost, $custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $rootpass, $server);
+        $total_cost = $order_response['total_cost'];
+        $real_iids = $order_response['real_iids'];
+        $serviceid = $order_response['serviceid'];
+        $return['status'] = 'ok';
+        $return['status_text'] = $serviceid;
+        $return['invoices'] = implode(',', $real_iids);
+        $return['cost'] = $total_cost;
+    } else {
+        $return['status'] = 'error';
+        $return['status_text'] = implode("\n", $errors);
+    }
+    return $return;
 }
