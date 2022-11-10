@@ -255,7 +255,7 @@ class Plugin
          * @var \MyAdmin\Settings $settings
          **/
         $settings = $event->getSubject();
-        $settings->add_text_setting(self::$module, _('Credentials'), 'webuzo_license_key', _('Webuzo License Key'), _('API Credentials for Webuozo'), $settings->get_setting('WEBUZO_LICENSE_KEY'));
+        $settings->add_password_setting(self::$module, _('Credentials'), 'webuzo_license_key', _('Webuzo License Key'), _('API Credentials for Webuozo'), $settings->get_setting('WEBUZO_LICENSE_KEY'));
         $settings->add_text_setting(self::$module, _('Slice Costs'), 'vps_ny_cost', _('VPS NY4 Multiplier'), _('This is the multiplier to a normal cost for an item to be hosted in NY.'), $settings->get_setting('VPS_NY_COST'));
         $settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_ram', _('Ram Per Slice'), _('Amount of ram in MB per VPS Slice'), $settings->get_setting('VPS_SLICE_RAM'));
         $settings->add_text_setting(self::$module, _('Slice Amounts'), 'vps_slice_hd', _('GB HD Space Per Slice'), _('Amount of HD space in GB per VPS Slice'), $settings->get_setting('VPS_SLICE_HD'));
