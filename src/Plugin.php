@@ -3,6 +3,8 @@
 namespace Detain\MyAdminVps;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Punic\Currency;
+use Brick\Money\Money;
 
 /**
  * Class Plugin
@@ -156,8 +158,10 @@ class Plugin
         $repeatInvoiceObj = new \MyAdmin\Orm\Repeat_Invoice();
         $repeatInvoiceObj->load_real($serviceInfo[$settings['PREFIX'].'_invoice']);
         if ($repeatInvoiceObj->loaded === true) {
+            $repCurrency = $repeatInvoiceObj->getCurrency();
+            $repeat_cost = $slice_cost * $slices;
             $repeatInvoiceObj->setDescription($serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name'].' '.$slices.' Slices')
-                ->setCost($slice_cost * $slices)
+                ->setCost(convertCurrency($repeat_cost, $repCurrency, 'USD')->getAmount()->toFloat())
                 ->save();
         }
         $invoiceObj = new \MyAdmin\Orm\Invoice();
@@ -165,8 +169,10 @@ class Plugin
         foreach ($invoices as $invoiceId) {
             $invoiceObj->load_real($invoiceId);
             if ($invoiceObj->loaded === true) {
+                $invCurrency = $invoiceObj->getCurrency();
+                $inv_cost = $slice_cost * $slices;
                 $invoiceObj->setDescription('(Repeat Invoice: '.$serviceInfo[$settings['PREFIX'].'_invoice'].') '.$serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name'].' '.$slices.' Slices')
-                    ->setAmount($slice_cost * $slices)
+                    ->setAmount(convertCurrency($inv_cost, $invCurrency, 'USD')->getAmount()->toFloat())
                     ->save();
             }
         }
