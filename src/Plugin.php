@@ -241,7 +241,7 @@ class Plugin
                         $ips[] = $db->Record['ips_ip'];
                     }
                 }
-                $db->query("update {$settings['PREFIX']}_ips set ips_main=0,ips_usable=1,ips_used=0,ips_{$settings['PREFIX']}=0 where ips_{$settings['PREFIX']}='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__, true);
+                $db->query("update {$settings['PREFIX']}_ips set ips_main=0,ips_usable=1,ips_used=0,ips_{$settings['PREFIX']}=0 where ips_{$settings['PREFIX']}='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
                 function_requirements('reverse_dns');
                 foreach ($ips as $ip) {
                     if (validIp($ip)) {
