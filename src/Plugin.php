@@ -277,6 +277,7 @@ class Plugin
         $settings->add_master_label(self::$module, 'Server Settings', self::$module, 'server_max', 'Max VPS', '<p>The Maximum number of VPS that can be running on each server.</p>', 'vps_masters.vps_server_max AS server_max');
         $settings->add_master_label(self::$module, 'Server Settings', self::$module, 'active_slices', 'Active Slices', '<p>The current total slices from active VPS.</p>', 'sum(vps.vps_slices) as active_slices');
         $settings->add_master_label(self::$module, 'Server Settings', self::$module, 'server_max_slices', 'Max Slices', '<p>The Maximum number of total slices that can be running on each server.</p>', 'vps_masters.vps_server_max_slices AS server_max_slices');
+        //$settings->add_master_label(self::$module, 'Server Settings', self::$module, 'vps_load', 'Load Avg', '<p>Server Load Average.</p>', 'vps_load');
         $settings->setTarget('global');
     }
 }
