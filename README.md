@@ -1,28 +1,41 @@
-# VPS Module for MyAdmin
+# MyAdmin VPS Module
 
-VPS Module for MyAdmin
+[![Tests](https://github.com/detain/myadmin-vps-module/actions/workflows/tests.yml/badge.svg)](https://github.com/detain/myadmin-vps-module/actions/workflows/tests.yml)
+[![Latest Stable Version](https://poser.pugx.org/detain/myadmin-vps-module/version)](https://packagist.org/packages/detain/myadmin-vps-module)
+[![Total Downloads](https://poser.pugx.org/detain/myadmin-vps-module/downloads)](https://packagist.org/packages/detain/myadmin-vps-module)
+[![License](https://poser.pugx.org/detain/myadmin-vps-module/license)](https://packagist.org/packages/detain/myadmin-vps-module)
 
-## Build Status and Code Analysis
+VPS hosting module for the [MyAdmin](https://github.com/detain/myadmin-client-vue) multi-service billing and management platform. Provides VPS provisioning, full lifecycle management (start, stop, restart, backup, terminate), slice-based resource scaling, and a SOAP/REST API for automated ordering and administration.
 
-Site          | Status
---------------|---------------------------
-![Travis-CI](http://i.is.cc/storage/GYd75qN.png "Travis-CI")     | [![Build Status](https://travis-ci.org/detain/myadmin-vps-module.svg?branch=master)](https://travis-ci.org/detain/myadmin-vps-module)
-![CodeClimate](http://i.is.cc/storage/GYlageh.png "CodeClimate")  | [![Code Climate](https://codeclimate.com/github/detain/myadmin-vps-module/badges/gpa.svg)](https://codeclimate.com/github/detain/myadmin-vps-module) [![Test Coverage](https://codeclimate.com/github/detain/myadmin-vps-module/badges/coverage.svg)](https://codeclimate.com/github/detain/myadmin-vps-module/coverage) [![Issue Count](https://codeclimate.com/github/detain/myadmin-vps-module/badges/issue_count.svg)](https://codeclimate.com/github/detain/myadmin-vps-module)
-![Scrutinizer](http://i.is.cc/storage/GYeUnux.png "Scrutinizer")   | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/myadmin-plugins/vps-module/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/myadmin-plugins/vps-module/?branch=master) [![Code Coverage](https://scrutinizer-ci.com/g/myadmin-plugins/vps-module/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/myadmin-plugins/vps-module/?branch=master) [![Build Status](https://scrutinizer-ci.com/g/myadmin-plugins/vps-module/badges/build.png?b=master)](https://scrutinizer-ci.com/g/myadmin-plugins/vps-module/build-status/master)
-![Codacy](http://i.is.cc/storage/GYi66Cx.png "Codacy")        | [![Codacy Badge](https://api.codacy.com/project/badge/Grade/226251fc068f4fd5b4b4ef9a40011d06)](https://www.codacy.com/app/detain/myadmin-vps-module) [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/25fa74eb74c947bf969602fcfe87e349)](https://www.codacy.com/app/detain/myadmin-vps-module?utm_source=github.com&utm_medium=referral&utm_content=detain/myadmin-vps-module&utm_campaign=Badge_Coverage)
-![Coveralls](http://i.is.cc/storage/GYjNSim.png "Coveralls")    | [![Coverage Status](https://coveralls.io/repos/github/detain/db_abstraction/badge.svg?branch=master)](https://coveralls.io/github/detain/myadmin-vps-module?branch=master)
-![Packagist](http://i.is.cc/storage/GYacBEX.png "Packagist")     | [![Latest Stable Version](https://poser.pugx.org/detain/myadmin-vps-module/version)](https://packagist.org/packages/detain/myadmin-vps-module) [![Total Downloads](https://poser.pugx.org/detain/myadmin-vps-module/downloads)](https://packagist.org/packages/detain/myadmin-vps-module) [![Latest Unstable Version](https://poser.pugx.org/detain/myadmin-vps-module/v/unstable)](//packagist.org/packages/detain/myadmin-vps-module) [![Monthly Downloads](https://poser.pugx.org/detain/myadmin-vps-module/d/monthly)](https://packagist.org/packages/detain/myadmin-vps-module) [![Daily Downloads](https://poser.pugx.org/detain/myadmin-vps-module/d/daily)](https://packagist.org/packages/detain/myadmin-vps-module) [![License](https://poser.pugx.org/detain/myadmin-vps-module/license)](https://packagist.org/packages/detain/myadmin-vps-module)
+## Features
 
+- Event-driven plugin architecture via Symfony EventDispatcher
+- Slice-based VPS resource scaling with configurable per-slice costs
+- Full VPS lifecycle: provisioning, activation, suspension, reactivation, termination
+- IP address management and reverse-DNS cleanup on termination
+- Backup creation, listing, and deletion through the API
+- Coupon and multi-period billing support
+- Admin-only order placement with explicit server targeting
+
+## Requirements
+
+- PHP 8.2 or later
+- ext-soap
+- Symfony EventDispatcher 5.x, 6.x, or 7.x
 
 ## Installation
-
-Install with composer like
 
 ```sh
 composer require detain/myadmin-vps-module
 ```
 
+## Running Tests
+
+```sh
+composer install
+vendor/bin/phpunit
+```
+
 ## License
 
-The VPS Module for MyAdmin class is licensed under the LGPL-v2.1 license.
-
+Licensed under the [LGPL-2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html).
