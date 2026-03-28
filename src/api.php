@@ -22,12 +22,12 @@
  * @param string $rootpass Desired Root Password (unused for windows, send a blank string)
  * @return array parsed order parameters and the validation result
  */
-function api_validate_buy_vps($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass)
+function api_validate_buy_vps($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $ipv6only = false)
 {
     //if ($GLOBALS['tf']->ima == 'admin')
     $custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
     function_requirements('validate_buy_vps');
-    $return = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass);
+    $return = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, (bool)$ipv6only);
     $return['status_text'] = implode("\n", $return['errors']);
     if ($return['continue'] === true) {
         $return['status'] = 'ok';
@@ -54,11 +54,11 @@ function api_validate_buy_vps($os, $slices, $platform, $controlpanel, $period, $
  * @param string $rootpass Desired Root Password (unused for windows, send a blank string)
  * @return array array containing order result information
  */
-function api_buy_vps($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass)
+function api_buy_vps($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $comment = '', $ipv6only = false)
 {
     $custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
     function_requirements('validate_buy_vps');
-    $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass);
+    $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, (bool)$ipv6only);
     $continue = $validation['continue'];
     $errors = $validation['errors'];
     $coupon_code = $validation['coupon_code'];
@@ -86,7 +86,7 @@ function api_buy_vps($os, $slices, $platform, $controlpanel, $period, $location,
     $return['cost'] = $service_cost;
     if ($continue === true) {
         function_requirements('place_buy_vps');
-        $order_response = place_buy_vps($coupon_code, $service_cost, $slice_cost, $service_type, $original_slice_cost, $original_cost, $repeat_service_cost, $custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $rootpass);
+        $order_response = place_buy_vps($coupon_code, $service_cost, $slice_cost, $service_type, $original_slice_cost, $original_cost, $repeat_service_cost, $custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $rootpass, 0, $comment, (bool)$ipv6only);
         $total_cost = $order_response['total_cost'];
         $real_iids = $order_response['real_iids'];
         $serviceid = $order_response['serviceid'];
@@ -117,7 +117,7 @@ function api_buy_vps($os, $slices, $platform, $controlpanel, $period, $location,
  * @param int $server 0 for auto assign otherwise the id of the vps master to put this on
  * @return array array containing order result information
  */
-function api_buy_vps_admin($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $server = 0)
+function api_buy_vps_admin($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $server = 0, $comment = '', $ipv6only = false)
 {
     if ($GLOBALS['tf']->ima != 'admin') {
         $server = 0;
@@ -126,7 +126,7 @@ function api_buy_vps_admin($os, $slices, $platform, $controlpanel, $period, $loc
     }
     $custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
     function_requirements('validate_buy_vps');
-    $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass);
+    $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, (bool)$ipv6only);
     $continue = $validation['continue'];
     $errors = $validation['errors'];
     $coupon_code = $validation['coupon_code'];
@@ -154,7 +154,7 @@ function api_buy_vps_admin($os, $slices, $platform, $controlpanel, $period, $loc
     $return['cost'] = $service_cost;
     if ($continue === true) {
         function_requirements('place_buy_vps');
-        $order_response = place_buy_vps($coupon_code, $service_cost, $slice_cost, $service_type, $original_slice_cost, $original_cost, $repeat_service_cost, $custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $rootpass, $server);
+        $order_response = place_buy_vps($coupon_code, $service_cost, $slice_cost, $service_type, $original_slice_cost, $original_cost, $repeat_service_cost, $custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $rootpass, $server, $comment, (bool)$ipv6only);
         $total_cost = $order_response['total_cost'];
         $real_iids = $order_response['real_iids'];
         $serviceid = $order_response['serviceid'];
