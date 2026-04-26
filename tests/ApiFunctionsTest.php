@@ -4,7 +4,7 @@
  *
  * These tests validate function existence, parameter signatures,
  * and source-level patterns. The actual functions rely heavily on
- * global state ($GLOBALS['tf']) and external function calls, so
+ * global state (MyAdmin\App::tf()) and external function calls, so
  * we use static analysis / reflection rather than direct execution
  * for database-touching code paths.
  *
@@ -35,7 +35,7 @@ class ApiFunctionsTest extends TestCase
     /**
      * Load the api.php file once for all tests.
      *
-     * The stubs for validate_buy_vps, place_buy_vps, and $GLOBALS['tf']
+     * The stubs for validate_buy_vps, place_buy_vps, and MyAdmin\App::tf()
      * are defined in bootstrap.php (global namespace).
      *
      * @return void
