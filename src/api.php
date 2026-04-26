@@ -24,8 +24,8 @@
  */
 function api_validate_buy_vps($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $ipv6only = false)
 {
-    //if ($GLOBALS['tf']->ima == 'admin')
-    $custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
+    //if (\MyAdmin\App::ima() == 'admin')
+    $custid = get_custid(\MyAdmin\App::session()->account_id, 'vps');
     function_requirements('validate_buy_vps');
     $return = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, (bool)$ipv6only);
     $return['status_text'] = implode("\n", $return['errors']);
@@ -56,7 +56,7 @@ function api_validate_buy_vps($os, $slices, $platform, $controlpanel, $period, $
  */
 function api_buy_vps($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $comment = '', $ipv6only = false)
 {
-    $custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
+    $custid = get_custid(\MyAdmin\App::session()->account_id, 'vps');
     function_requirements('validate_buy_vps');
     $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, (bool)$ipv6only);
     $continue = $validation['continue'];
@@ -119,12 +119,12 @@ function api_buy_vps($os, $slices, $platform, $controlpanel, $period, $location,
  */
 function api_buy_vps_admin($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $server = 0, $comment = '', $ipv6only = false)
 {
-    if ($GLOBALS['tf']->ima != 'admin') {
+    if (\MyAdmin\App::ima() != 'admin') {
         $server = 0;
     } else {
         $server = (int)$server;
     }
-    $custid = get_custid($GLOBALS['tf']->session->account_id, 'vps');
+    $custid = get_custid(\MyAdmin\App::session()->account_id, 'vps');
     function_requirements('validate_buy_vps');
     $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, (bool)$ipv6only);
     $continue = $validation['continue'];

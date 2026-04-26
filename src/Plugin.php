@@ -154,7 +154,7 @@ class Plugin
         $db = get_module_db(self::$module);
         $db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
         $q1 = "update {$settings['TABLE']} set {$settings['PREFIX']}_slices='{$slices}' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'";
-        $GLOBALS['tf']->history->add('query_log', 'update', $serviceInfo[$settings['PREFIX'].'_id'], $q1, $serviceInfo[$settings['PREFIX'].'_custid']);
+        \MyAdmin\App::history()->add('query_log', 'update', $serviceInfo[$settings['PREFIX'].'_id'], $q1, $serviceInfo[$settings['PREFIX'].'_custid']);
         $repeatInvoiceObj = new \MyAdmin\Orm\Repeat_Invoice();
         $repeatInvoiceObj->load_real($serviceInfo[$settings['PREFIX'].'_invoice']);
         if ($repeatInvoiceObj->loaded === true) {
@@ -180,9 +180,9 @@ class Plugin
             if ($deferUpgradeViaTicket == true) {
                 add_output('Thank you for your upgrade request. A ticket has been automatically opened for you. Please allow us 24 hours to complete your upgrade. You can check the status of your ticket here');
                 function_requirements('create_ticket');
-                create_ticket($GLOBALS['tf']->accounts->cross_reference($serviceInfo[$settings['PREFIX'].'_custid']), "VPS {$serviceInfo[$settings['PREFIX'].'_id']} has paid for and needs a slice upgrade to {$slices} slices.", "VPS {$serviceInfo[$settings['PREFIX'].'_id']} Slice Upgrade");
+                create_ticket(\MyAdmin\App::accounts()->cross_reference($serviceInfo[$settings['PREFIX'].'_custid']), "VPS {$serviceInfo[$settings['PREFIX'].'_id']} has paid for and needs a slice upgrade to {$slices} slices.", "VPS {$serviceInfo[$settings['PREFIX'].'_id']} Slice Upgrade");
             } else {
-                $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'set_slices', $slices, $serviceInfo[$settings['PREFIX'].'_custid']);
+                \MyAdmin\App::history()->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'set_slices', $slices, $serviceInfo[$settings['PREFIX'].'_custid']);
                 add_output('Update has been sent to the server');
             }
         }
@@ -203,8 +203,8 @@ class Plugin
                 $settings = get_module_settings(self::$module);
                 $db = get_module_db(self::$module);
                 $db->query('update '.$settings['TABLE'].' set '.$settings['PREFIX']."_status='pending-setup' where ".$settings['PREFIX']."_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
-                $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
-                $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+                \MyAdmin\App::history()->add($settings['TABLE'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
+                \MyAdmin\App::history()->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
                 admin_email_vps_pending_setup($serviceInfo[$settings['PREFIX'].'_id']);
             })->setReactivate(function ($service) {
                 $serviceTypes = run_event('get_service_types', false, self::$module);
@@ -212,14 +212,14 @@ class Plugin
                 $settings = get_module_settings(self::$module);
                 $db = get_module_db(self::$module);
                 if ($serviceInfo[$settings['PREFIX'].'_server_status'] === 'deleted' || $serviceInfo[$settings['PREFIX'].'_ip'] == '') {
-                    $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
+                    \MyAdmin\App::history()->add($settings['TABLE'], 'change_status', 'pending-setup', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
                     $db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_status='pending-setup' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
-                    $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+                    \MyAdmin\App::history()->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'initial_install', '', $serviceInfo[$settings['PREFIX'].'_custid']);
                 } else {
-                    $GLOBALS['tf']->history->add($settings['TABLE'], 'change_status', 'active', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
+                    \MyAdmin\App::history()->add($settings['TABLE'], 'change_status', 'active', $serviceInfo[$settings['PREFIX'].'_id'], $serviceInfo[$settings['PREFIX'].'_custid']);
                     $db->query("update {$settings['TABLE']} set {$settings['PREFIX']}_status='active' where {$settings['PREFIX']}_id='{$serviceInfo[$settings['PREFIX'].'_id']}'", __LINE__, __FILE__);
-                    $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'enable', '', $serviceInfo[$settings['PREFIX'].'_custid']);
-                    $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'start', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+                    \MyAdmin\App::history()->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'enable', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+                    \MyAdmin\App::history()->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'start', '', $serviceInfo[$settings['PREFIX'].'_custid']);
                 }
                 $smarty = new \TFSmarty();
                 $smarty->assign('vps_name', $serviceTypes[$serviceInfo[$settings['PREFIX'].'_type']]['services_name']);
@@ -248,7 +248,7 @@ class Plugin
                         reverse_dns($ip, '', 'remove_reverse');
                     }
                 }
-                $GLOBALS['tf']->history->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'destroy', '', $serviceInfo[$settings['PREFIX'].'_custid']);
+                \MyAdmin\App::history()->add(self::$module.'queue', $serviceInfo[$settings['PREFIX'].'_id'], 'destroy', '', $serviceInfo[$settings['PREFIX'].'_custid']);
             })->register();
     }
 
