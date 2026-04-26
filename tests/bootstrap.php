@@ -267,9 +267,10 @@ if (!function_exists('place_buy_vps')) {
     }
 }
 
-// Set up minimal $GLOBALS['tf'] for API function tests
-if (!isset($GLOBALS['tf'])) {
-    $GLOBALS['tf'] = new class {
+// Bind a tf-like stub via the App container so MyAdmin\App::session(),
+// App::history(), App::accounts(), App::ima() resolve in the test suite.
+if (class_exists(\MyAdmin\App\Testing\TestContainerBuilder::class)) {
+    $tfStub = new class {
         public $session;
         public $ima = 'client';
         public $history;
@@ -293,4 +294,12 @@ if (!isset($GLOBALS['tf'])) {
             };
         }
     };
+
+    \MyAdmin\App::setContainer(
+        \MyAdmin\App\Testing\TestContainerBuilder::make()
+            ->with(\MyAdmin\App\Contracts\SessionInterface::class, $tfStub->session)
+            ->with(\MyAdmin\App\Contracts\AccountsInterface::class, $tfStub->accounts)
+            ->withTf($tfStub)
+            ->build()
+    );
 }
