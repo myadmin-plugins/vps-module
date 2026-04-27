@@ -475,7 +475,6 @@ class PluginTest extends TestCase
             'idNameSizeUrlArray',
             'vps_template',
             'vps_platform',
-            'vps_screenshot_return',
             'buy_vps_result_status',
             'validate_buy_vps_result_status',
         ];
@@ -503,7 +502,6 @@ class PluginTest extends TestCase
             'api_validate_buy_vps',
             'api_buy_vps',
             'api_buy_vps_admin',
-            'vps_screenshot',
             'vps_get_server_name',
         ];
         foreach ($expectedApis as $name) {
