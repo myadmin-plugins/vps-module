@@ -27,7 +27,8 @@
 		"symfony/event-dispatcher": "^5.0|^6.0|^7.0"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^9.6"
+		"phpunit/phpunit": "^9.6",
+		"detain/myadmin-contracts": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {

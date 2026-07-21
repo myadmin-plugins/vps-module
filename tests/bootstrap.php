@@ -45,6 +45,21 @@ if (!$autoloaded) {
     });
 }
 
+// Register the test-support namespace (Detain\MyAdminVps\Tests\*) explicitly.
+// When this package runs inside the core install, composer loads only the
+// package's non-dev `autoload` (src/), not its `autoload-dev`, so shared test
+// helpers such as tests/Fakes/FakeDb.php would otherwise not autoload.
+spl_autoload_register(function (string $class): void {
+    $prefix = 'Detain\\MyAdminVps\\Tests\\';
+    if (strpos($class, $prefix) === 0) {
+        $relative = substr($class, strlen($prefix));
+        $file = __DIR__ . '/' . str_replace('\\', '/', $relative) . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+        }
+    }
+});
+
 // Stub global functions that the source code calls but are provided
 // by the broader MyAdmin framework at runtime.
 
@@ -156,7 +171,11 @@ if (!function_exists('validIp')) {
 if (!function_exists('reverse_dns')) {
     function reverse_dns($ip, $host, $action)
     {
-        // No-op for testing
+        // Behavioral tests may seed $GLOBALS['__vps_test_reverse_dns_calls'] as
+        // an array to capture each invocation; otherwise a no-op.
+        if (isset($GLOBALS['__vps_test_reverse_dns_calls']) && is_array($GLOBALS['__vps_test_reverse_dns_calls'])) {
+            $GLOBALS['__vps_test_reverse_dns_calls'][] = [$ip, $host, $action];
+        }
     }
 }
 
@@ -276,14 +295,27 @@ if (class_exists(\MyAdmin\App\Testing\TestContainerBuilder::class)) {
         public $history;
         public $accounts;
 
+        /**
+         * The real function_requirements() global (plugin-installer) delegates
+         * to App::tf()->function_requirements(); no-op it for the test suite so
+         * lazy-load calls in executed code paths succeed.
+         */
+        public function function_requirements($func)
+        {
+            return true;
+        }
+
         public function __construct()
         {
             $this->session = new class {
                 public $account_id = 1;
             };
             $this->history = new class {
+                /** Every add() call, captured for behavioral assertions. @var array<int,array> */
+                public array $calls = [];
                 public function add(...$args)
                 {
+                    $this->calls[] = $args;
                 }
             };
             $this->accounts = new class {
@@ -302,4 +334,8 @@ if (class_exists(\MyAdmin\App\Testing\TestContainerBuilder::class)) {
             ->withTf($tfStub)
             ->build()
     );
+
+    // Expose the tf stub so behavioral tests can read/reset the captured
+    // history calls (App::history() proxies to $tfStub->history).
+    $GLOBALS['__vps_test_tf'] = $tfStub;
 }
