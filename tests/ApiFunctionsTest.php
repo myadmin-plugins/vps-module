@@ -2,19 +2,26 @@
 /**
  * Unit tests for the VPS API functions in src/api.php
  *
- * These tests validate function existence, parameter signatures,
- * and source-level patterns. The actual functions rely heavily on
- * global state (MyAdmin\App::tf()) and external function calls, so
- * we use static analysis / reflection rather than direct execution
- * for database-touching code paths.
+ * The functions reach the outside world through \MyAdmin\App (session, role)
+ * and through the validate_buy_vps()/place_buy_vps() globals, all of which are
+ * doubled in tests/bootstrap.php — so these tests EXECUTE the functions and
+ * assert on behaviour and on captured arguments.
+ *
+ * Signature/contract coverage is derived from the source of truth rather than
+ * pinned to literals: the SOAP parameter lists registered by
+ * Plugin::apiRegister() are compared against the reflected signatures, so a
+ * backward-compatible parameter addition needs no test edit while a one-sided
+ * change to either fails.
  *
  * @package Detain\MyAdminVps\Tests
  */
 
 namespace Detain\MyAdminVps\Tests;
 
+use Detain\MyAdminVps\Plugin;
 use PHPUnit\Framework\TestCase;
 use ReflectionFunction;
+use Symfony\Component\EventDispatcher\GenericEvent;
 
 class ApiFunctionsTest extends TestCase
 {
@@ -35,8 +42,8 @@ class ApiFunctionsTest extends TestCase
     /**
      * Load the api.php file once for all tests.
      *
-     * The stubs for validate_buy_vps, place_buy_vps, and MyAdmin\App::tf()
-     * are defined in bootstrap.php (global namespace).
+     * The validate_buy_vps()/place_buy_vps() stubs and the \MyAdmin\App double
+     * (bound to the shared Fakes\FakeTf) are set up in tests/bootstrap.php.
      *
      * @return void
      */
@@ -55,6 +62,41 @@ class ApiFunctionsTest extends TestCase
         if (!function_exists('api_validate_buy_vps')) {
             require_once self::$apiSourcePath;
         }
+    }
+
+    /**
+     * The tf stub reached through \MyAdmin\App is process-global, so restore it
+     * to its pristine bootstrap state around every test — otherwise a test that
+     * flips ima() to 'admin' silently grants admin to whatever runs next.
+     *
+     * @return void
+     */
+    protected function setUp(): void
+    {
+        $this->tf()->reset();
+        $GLOBALS['__vps_test_place_buy_vps_calls'] = [];
+    }
+
+    /**
+     * @return void
+     */
+    protected function tearDown(): void
+    {
+        $this->tf()->reset();
+        unset(
+            $GLOBALS['__vps_test_place_buy_vps_calls'],
+            $GLOBALS['__vps_test_api_register_calls']
+        );
+    }
+
+    /**
+     * The shared tf stub built in tests/bootstrap.php.
+     *
+     * @return \Detain\MyAdminVps\Tests\Fakes\FakeTf
+     */
+    private function tf()
+    {
+        return $GLOBALS['__vps_test_tf'];
     }
 
     // ------------------------------------------------------------------
@@ -101,106 +143,81 @@ class ApiFunctionsTest extends TestCase
     }
 
     // ------------------------------------------------------------------
-    //  Parameter signatures
+    //  SOAP contract <-> implementation signature agreement
     // ------------------------------------------------------------------
 
     /**
-     * Verify api_validate_buy_vps has exactly 10 required parameters.
+     * The three api_*_buy_vps functions are a PUBLIC SOAP API. Their parameter
+     * lists are declared to the SOAP layer by Plugin::apiRegister() via
+     * api_register(); if that declaration and the actual PHP signature ever
+     * drift, SOAP callers silently pass the wrong argument into the wrong slot.
      *
+     * So rather than pinning literal names/counts here (which just goes stale
+     * every time a parameter is legitimately appended, as it did for $comment
+     * and $ipv6only), assert the real invariant: the registered parameter list
+     * equals the reflected signature, same names in the same order. Both sides
+     * are read from the source of truth, so a compatible signature change needs
+     * no test edit — but a one-sided change fails loudly.
+     *
+     * @dataProvider soapRegisteredApiFunctions
+     *
+     * @param string $function
      * @return void
      */
-    public function testApiValidateBuyVpsParameterCount(): void
+    public function testApiRegisterParameterListMatchesFunctionSignature(string $function): void
     {
-        $ref = new ReflectionFunction('api_validate_buy_vps');
-        $this->assertSame(10, $ref->getNumberOfParameters());
-        $this->assertSame(10, $ref->getNumberOfRequiredParameters());
-    }
+        $registered = $this->captureApiRegistrations();
 
-    /**
-     * Verify api_validate_buy_vps parameter names match the expected order.
-     *
-     * @return void
-     */
-    public function testApiValidateBuyVpsParameterNames(): void
-    {
-        $ref = new ReflectionFunction('api_validate_buy_vps');
-        $names = array_map(
-            fn($p) => $p->getName(),
-            $ref->getParameters()
+        $this->assertArrayHasKey(
+            $function,
+            $registered,
+            "Plugin::apiRegister() no longer registers {$function}() with the SOAP layer"
         );
 
-        $expected = [
-            'os', 'slices', 'platform', 'controlpanel', 'period',
-            'location', 'version', 'hostname', 'coupon', 'rootpass',
-        ];
-
-        $this->assertSame($expected, $names);
-    }
-
-    /**
-     * Verify api_buy_vps has exactly 10 required parameters.
-     *
-     * @return void
-     */
-    public function testApiBuyVpsParameterCount(): void
-    {
-        $ref = new ReflectionFunction('api_buy_vps');
-        $this->assertSame(10, $ref->getNumberOfParameters());
-        $this->assertSame(10, $ref->getNumberOfRequiredParameters());
-    }
-
-    /**
-     * Verify api_buy_vps parameter names match the expected order.
-     *
-     * @return void
-     */
-    public function testApiBuyVpsParameterNames(): void
-    {
-        $ref = new ReflectionFunction('api_buy_vps');
-        $names = array_map(
+        $declared = array_keys($registered[$function]);
+        $actual = array_map(
             fn($p) => $p->getName(),
-            $ref->getParameters()
+            (new ReflectionFunction($function))->getParameters()
         );
 
-        $expected = [
-            'os', 'slices', 'platform', 'controlpanel', 'period',
-            'location', 'version', 'hostname', 'coupon', 'rootpass',
-        ];
-
-        $this->assertSame($expected, $names);
-    }
-
-    /**
-     * Verify api_buy_vps_admin has 11 parameters with 10 required.
-     *
-     * @return void
-     */
-    public function testApiBuyVpsAdminParameterCount(): void
-    {
-        $ref = new ReflectionFunction('api_buy_vps_admin');
-        $this->assertSame(11, $ref->getNumberOfParameters());
-        $this->assertSame(10, $ref->getNumberOfRequiredParameters());
-    }
-
-    /**
-     * Verify api_buy_vps_admin parameter names include the server param.
-     *
-     * @return void
-     */
-    public function testApiBuyVpsAdminParameterNames(): void
-    {
-        $ref = new ReflectionFunction('api_buy_vps_admin');
-        $names = array_map(
-            fn($p) => $p->getName(),
-            $ref->getParameters()
+        $this->assertSame(
+            $actual,
+            $declared,
+            "The SOAP parameter list registered for {$function}() in Plugin::apiRegister() "
+            . 'has drifted from the function signature in src/api.php. '
+            . 'Registered: [' . implode(', ', $declared) . '] '
+            . 'Actual: [' . implode(', ', $actual) . ']'
         );
+    }
 
-        $expected = [
-            'os', 'slices', 'platform', 'controlpanel', 'period',
-            'location', 'version', 'hostname', 'coupon', 'rootpass', 'server',
+    /**
+     * The API functions whose SOAP registration must track their signature.
+     *
+     * @return array<string,array{0:string}>
+     */
+    public static function soapRegisteredApiFunctions(): array
+    {
+        return [
+            'api_validate_buy_vps' => ['api_validate_buy_vps'],
+            'api_buy_vps' => ['api_buy_vps'],
+            'api_buy_vps_admin' => ['api_buy_vps_admin'],
         ];
+    }
 
-        $this->assertSame($expected, $names);
+    /**
+     * Drive Plugin::apiRegister() with the capturing api_register() stub from
+     * tests/bootstrap.php and return the registered parameter lists keyed by
+     * API function name.
+     *
+     * @return array<string,array<string,string>>
+     */
+    private function captureApiRegistrations(): array
+    {
+        $GLOBALS['__vps_test_api_register_calls'] = [];
+        Plugin::apiRegister(new GenericEvent(new \stdClass()));
+        $captured = $GLOBALS['__vps_test_api_register_calls'];
+        unset($GLOBALS['__vps_test_api_register_calls']);
+        return $captured;
     }
 
     /**
@@ -211,9 +228,15 @@ class ApiFunctionsTest extends TestCase
     public function testApiBuyVpsAdminServerDefaultsToZero(): void
     {
         $ref = new ReflectionFunction('api_buy_vps_admin');
-        $params = $ref->getParameters();
-        $serverParam = $params[10];
+        $serverParam = null;
+        foreach ($ref->getParameters() as $param) {
+            if ($param->getName() === 'server') {
+                $serverParam = $param;
+                break;
+            }
+        }
 
+        $this->assertNotNull($serverParam, 'api_buy_vps_admin() should take a $server parameter');
         $this->assertTrue($serverParam->isDefaultValueAvailable());
         $this->assertSame(0, $serverParam->getDefaultValue());
     }
@@ -258,42 +281,6 @@ class ApiFunctionsTest extends TestCase
             'place_buy_vps(',
             self::$source,
             'api_buy_vps should call place_buy_vps() on success'
-        );
-    }
-
-    /**
-     * Verify api_buy_vps_admin checks for admin role.
-     *
-     * @return void
-     */
-    public function testApiBuyVpsAdminChecksAdminRole(): void
-    {
-        $this->assertStringContainsString(
-            "->ima != 'admin'",
-            self::$source,
-            'api_buy_vps_admin should check admin role'
-        );
-    }
-
-    /**
-     * Verify api_buy_vps_admin resets server to 0 for non-admins.
-     *
-     * @return void
-     */
-    public function testApiBuyVpsAdminResetsServerForNonAdmin(): void
-    {
-        // The source should have $server = 0 in the non-admin branch
-        $this->assertStringContainsString(
-            '$server = 0',
-            self::$source,
-            'Non-admin branch should set $server = 0'
-        );
-
-        // And cast to int for admin branch
-        $this->assertStringContainsString(
-            '$server = (int)$server',
-            self::$source,
-            'Admin branch should cast $server to int'
         );
     }
 
@@ -432,6 +419,83 @@ class ApiFunctionsTest extends TestCase
         $this->assertArrayHasKey('invoices', $result);
         $this->assertArrayHasKey('cost', $result);
         $this->assertSame('ok', $result['status']);
+    }
+
+    // ------------------------------------------------------------------
+    //  Admin gate on api_buy_vps_admin()  (behavioural)
+    // ------------------------------------------------------------------
+
+    /**
+     * The security property of api_buy_vps_admin(): a caller who is NOT admin
+     * cannot choose which VPS master their order lands on — the requested
+     * $server is discarded and 0 (auto-assign) is what reaches place_buy_vps().
+     *
+     * This is asserted behaviourally, by capturing the real place_buy_vps()
+     * argument, rather than by grepping src/api.php for the shape of the
+     * check: the source-text version of this test passed happily while
+     * asserting nothing about behaviour, and broke the moment the check was
+     * migrated from $GLOBALS['tf']->ima to \MyAdmin\App::ima().
+     *
+     * @return void
+     */
+    public function testApiBuyVpsAdminForcesServerToZeroForNonAdmin(): void
+    {
+        $this->tf()->ima = 'client';
+
+        api_buy_vps_admin(
+            'centos-7-x86_64.tar.gz',
+            1,
+            'kvm',
+            'none',
+            1,
+            1,
+            'centos7',
+            'test.example.com',
+            '',
+            'testpass123',
+            5
+        );
+
+        $calls = $GLOBALS['__vps_test_place_buy_vps_calls'];
+        $this->assertCount(1, $calls);
+        $this->assertSame(
+            0,
+            $calls[0]['server'],
+            'A non-admin caller must not be able to pick the target VPS master'
+        );
+    }
+
+    /**
+     * The other half of the gate: an admin caller's requested server IS
+     * honoured, cast to int.
+     *
+     * @return void
+     */
+    public function testApiBuyVpsAdminHonoursRequestedServerForAdmin(): void
+    {
+        $this->tf()->ima = 'admin';
+
+        api_buy_vps_admin(
+            'centos-7-x86_64.tar.gz',
+            1,
+            'kvm',
+            'none',
+            1,
+            1,
+            'centos7',
+            'test.example.com',
+            '',
+            'testpass123',
+            '5'
+        );
+
+        $calls = $GLOBALS['__vps_test_place_buy_vps_calls'];
+        $this->assertCount(1, $calls);
+        $this->assertSame(
+            5,
+            $calls[0]['server'],
+            'An admin caller\'s server choice must be passed through, cast to int'
+        );
     }
 
     /**

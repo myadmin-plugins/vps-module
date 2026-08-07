@@ -51,9 +51,10 @@ class LifecycleHandlersTest extends TestCase
         $service = $this->makeCapturingServiceHandler();
         Plugin::loadProcessing(new GenericEvent($service));
 
-        // Reset the captured-history + reverse_dns sinks between tests.
+        // Restore the shared tf stub (role + captured history) and reset the
+        // reverse_dns sink between tests.
         if (isset($GLOBALS['__vps_test_tf'])) {
-            $GLOBALS['__vps_test_tf']->history->calls = [];
+            $GLOBALS['__vps_test_tf']->reset();
         }
         $GLOBALS['__vps_test_reverse_dns_calls'] = [];
     }
@@ -62,7 +63,7 @@ class LifecycleHandlersTest extends TestCase
     {
         unset($GLOBALS['vps_dbh'], $GLOBALS['__vps_test_reverse_dns_calls'], $GLOBALS['modules']);
         if (isset($GLOBALS['__vps_test_tf'])) {
-            $GLOBALS['__vps_test_tf']->history->calls = [];
+            $GLOBALS['__vps_test_tf']->reset();
         }
     }
 

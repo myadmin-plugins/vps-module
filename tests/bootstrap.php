@@ -228,24 +228,32 @@ if (!function_exists('admin_email_vps_pending_setup')) {
     }
 }
 
-// Stub for api_register used in Plugin::apiRegister
+// Stub for api_register used in Plugin::apiRegister.
+// Tests may seed $GLOBALS['__vps_test_api_register_calls'] as an array to
+// capture the SOAP parameter list declared for each API function; otherwise
+// this is a no-op.
 if (!function_exists('api_register')) {
     function api_register($name, $params, $returns, $desc, $auth = false, $admin = false)
     {
-        // No-op for testing — captured by tests when needed
+        if (isset($GLOBALS['__vps_test_api_register_calls']) && is_array($GLOBALS['__vps_test_api_register_calls'])) {
+            $GLOBALS['__vps_test_api_register_calls'][$name] = $params;
+        }
     }
 }
 
 if (!function_exists('api_register_array')) {
     function api_register_array($name, $fields)
     {
-        // No-op for testing — captured by tests when needed
+        if (isset($GLOBALS['__vps_test_api_register_array_calls']) && is_array($GLOBALS['__vps_test_api_register_array_calls'])) {
+            $GLOBALS['__vps_test_api_register_array_calls'][$name] = $fields;
+        }
     }
 }
 
-// Stub for validate_buy_vps used by the API functions in src/api.php
+// Stub for validate_buy_vps used by the API functions in src/api.php.
+// Signature mirrors the production include/vps/validate_buy_vps.php.
 if (!function_exists('validate_buy_vps')) {
-    function validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass)
+    function validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $ipv6only = false)
     {
         return [
             'continue' => true,
@@ -274,10 +282,38 @@ if (!function_exists('validate_buy_vps')) {
     }
 }
 
-// Stub for place_buy_vps used by the API functions in src/api.php
+// Stub for place_buy_vps used by the API functions in src/api.php.
+// Signature mirrors the production include/vps/place_buy_vps.php so the
+// arguments can be captured BY NAME rather than by positional index.
+// Tests may seed $GLOBALS['__vps_test_place_buy_vps_calls'] as an array to
+// capture each invocation; otherwise this only returns the canned order.
 if (!function_exists('place_buy_vps')) {
-    function place_buy_vps(...$args)
+    function place_buy_vps($coupon_code, $service_cost, $slice_cost, $serviceType, $original_slice_cost, $original_cost, $repeat_service_cost, $custid, $os, $slices, $platform, $controlpanel, $frequency, $location, $version, $hostname, $rootpass, $server = 0, $comment = '', $ipv6only = false)
     {
+        if (isset($GLOBALS['__vps_test_place_buy_vps_calls']) && is_array($GLOBALS['__vps_test_place_buy_vps_calls'])) {
+            $GLOBALS['__vps_test_place_buy_vps_calls'][] = compact(
+                'coupon_code',
+                'service_cost',
+                'slice_cost',
+                'serviceType',
+                'original_slice_cost',
+                'original_cost',
+                'repeat_service_cost',
+                'custid',
+                'os',
+                'slices',
+                'platform',
+                'controlpanel',
+                'frequency',
+                'location',
+                'version',
+                'hostname',
+                'rootpass',
+                'server',
+                'comment',
+                'ipv6only'
+            );
+        }
         return [
             'total_cost' => 6.00,
             'real_iids' => [12345],
@@ -286,47 +322,21 @@ if (!function_exists('place_buy_vps')) {
     }
 }
 
-// Bind a tf-like stub via the App container so MyAdmin\App::session(),
-// App::history(), App::accounts(), App::ima() resolve in the test suite.
+// Bind a tf-like stub so \MyAdmin\App::session(), ::history(), ::accounts()
+// and ::ima() resolve in the test suite.
+//
+// Two wiring paths, because this package's tests run in two places:
+//   1. Inside a MyAdmin core checkout, where the REAL \MyAdmin\App and its
+//      TestContainerBuilder are autoloadable — bind the stub through the
+//      real container so the tests exercise the real service locator.
+//   2. Standalone (the normal `vendor/bin/phpunit` run in this repo), where
+//      core is absent — load the \MyAdmin\App test double from
+//      tests/stubs/MyAdminApp.php. The class_exists() guard is what keeps the
+//      double from colliding with the real class; declaring it unguarded would
+//      fatal with "cannot redeclare" the moment core is on the autoloader.
+$tfStub = new \Detain\MyAdminVps\Tests\Fakes\FakeTf();
+
 if (class_exists(\MyAdmin\App\Testing\TestContainerBuilder::class)) {
-    $tfStub = new class {
-        public $session;
-        public $ima = 'client';
-        public $history;
-        public $accounts;
-
-        /**
-         * The real function_requirements() global (plugin-installer) delegates
-         * to App::tf()->function_requirements(); no-op it for the test suite so
-         * lazy-load calls in executed code paths succeed.
-         */
-        public function function_requirements($func)
-        {
-            return true;
-        }
-
-        public function __construct()
-        {
-            $this->session = new class {
-                public $account_id = 1;
-            };
-            $this->history = new class {
-                /** Every add() call, captured for behavioral assertions. @var array<int,array> */
-                public array $calls = [];
-                public function add(...$args)
-                {
-                    $this->calls[] = $args;
-                }
-            };
-            $this->accounts = new class {
-                public function cross_reference($id)
-                {
-                    return $id;
-                }
-            };
-        }
-    };
-
     \MyAdmin\App::setContainer(
         \MyAdmin\App\Testing\TestContainerBuilder::make()
             ->with(\MyAdmin\App\Contracts\SessionInterface::class, $tfStub->session)
@@ -334,8 +344,12 @@ if (class_exists(\MyAdmin\App\Testing\TestContainerBuilder::class)) {
             ->withTf($tfStub)
             ->build()
     );
-
-    // Expose the tf stub so behavioral tests can read/reset the captured
-    // history calls (App::history() proxies to $tfStub->history).
-    $GLOBALS['__vps_test_tf'] = $tfStub;
+} elseif (!class_exists(\MyAdmin\App::class)) {
+    require_once __DIR__ . '/stubs/MyAdminApp.php';
+    \MyAdmin\App::setTf($tfStub);
 }
+
+// Expose the tf stub so tests can drive it (->ima) and read what production
+// code did through it (->history->calls). Tests MUST reset() it in setUp()
+// and tearDown() — see Fakes\FakeTf::reset().
+$GLOBALS['__vps_test_tf'] = $tfStub;
