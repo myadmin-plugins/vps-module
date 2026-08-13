@@ -1,6 +1,6 @@
 ---
 name: phpunit-test
-description: Writes PHPUnit test classes under tests/ in namespace Detain\MyAdminVps\Tests using ReflectionFunction/ReflectionClass for parameter assertions and assertStringContainsString for source-level checks. Stubs rely on tests/bootstrap.php. Use when user says 'write tests', 'add test for', 'test this function', or adds new functions to src/api.php or src/Plugin.php. Do NOT use for integration tests that require a live DB or the full MyAdmin application stack. NOTE: for a plugin's contract/behavioral tests (tests/ContractTest.php, the shared harness, composer myadmin:scaffold-tests) use the plugin-contract-tests skill instead — this skill's reflection-only guidance predates that harness.
+description: Writes PHPUnit test classes under tests/ in namespace Detain\MyAdminVps\Tests using ReflectionFunction/ReflectionClass for parameter assertions and assertStringContainsString for source-level checks. Stubs rely on tests/bootstrap.php. Use when user says 'write tests', 'add test for', 'test this function', or adds new functions to src/api.php or src/Plugin.php. Do NOT use for integration tests that require a live DB or the full MyAdmin application stack. For a plugin's contract or behavioral tests (tests/ContractTest.php, the shared harness, composer myadmin:scaffold-tests) use the plugin-contract-tests skill instead — this skill's reflection-only guidance predates that harness.
 ---
 <!-- myadmin-contract-harness-notice -->
 > ### ⚠️ Read this before the rest of the file
