@@ -19,6 +19,7 @@
 namespace Detain\MyAdminVps\Tests;
 
 use Detain\MyAdminVps\Plugin;
+use Detain\MyAdminVps\Tests\Fakes\FakeDb;
 use PHPUnit\Framework\TestCase;
 use ReflectionFunction;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -75,6 +76,9 @@ class ApiFunctionsTest extends TestCase
     {
         $this->tf()->reset();
         $GLOBALS['__vps_test_place_buy_vps_calls'] = [];
+        // the api functions escape their order arguments through get_module_db('vps'),
+        // which returns `clone $GLOBALS['vps_dbh']`; FakeDb::real_escape() is addslashes()
+        $GLOBALS['vps_dbh'] = new FakeDb();
     }
 
     /**
@@ -85,7 +89,8 @@ class ApiFunctionsTest extends TestCase
         $this->tf()->reset();
         unset(
             $GLOBALS['__vps_test_place_buy_vps_calls'],
-            $GLOBALS['__vps_test_api_register_calls']
+            $GLOBALS['__vps_test_api_register_calls'],
+            $GLOBALS['vps_dbh']
         );
     }
 
@@ -512,6 +517,110 @@ class ApiFunctionsTest extends TestCase
 
         $this->assertIsArray($result);
         $this->assertSame('ok', $result['status']);
+    }
+
+    // ------------------------------------------------------------------
+    //  SQL escaping of the order arguments  (behavioural)
+    // ------------------------------------------------------------------
+
+    /**
+     * validate_buy_vps() interpolates coupon (and place_buy_vps() os / hostname)
+     * straight into SQL, trusting the caller to have escaped them the way the
+     * web order pages do with real_escape(trim(...)). The validate_buy_vps()
+     * stub echoes back what it received, so this sees exactly what reached it.
+     *
+     * @return void
+     */
+    public function testApiValidateBuyVpsEscapesOrderArgumentsBeforeValidation(): void
+    {
+        $result = api_validate_buy_vps(
+            "centos' or '1'='1",
+            '1',
+            "kvm'",
+            "none'",
+            '1',
+            '1',
+            "centos7'",
+            " test'.example.com ",
+            "x' union select password from accounts -- ",
+            "Root'Pass1! "
+        );
+
+        $this->assertSame("centos\\' or \\'1\\'=\\'1", $result['os']);
+        $this->assertSame("kvm\\'", $result['platform']);
+        $this->assertSame("none\\'", $result['controlpanel']);
+        $this->assertSame("centos7\\'", $result['version']);
+        $this->assertSame("test\\'.example.com", $result['hostname'], 'hostname is trimmed then escaped');
+        $this->assertSame("x\\' union select password from accounts --", $result['coupon']);
+        $this->assertSame(
+            "Root'Pass1! ",
+            $result['rootpass'],
+            'rootpass is passed raw, as the web order pages do: it only reaches SQL through make_insert_query()'
+        );
+    }
+
+    /**
+     * The escaped values flow on into place_buy_vps() (api_buy_vps() re-reads
+     * them from the validation result); comment is left raw because
+     * place_buy_vps() only writes it through make_insert_query().
+     *
+     * @return void
+     */
+    public function testApiBuyVpsPassesEscapedValuesToPlaceBuyVps(): void
+    {
+        api_buy_vps(
+            "ubuntu'--",
+            1,
+            'kvm',
+            'none',
+            1,
+            1,
+            '22.04',
+            "a'b.example.com",
+            "c'oupon",
+            'testpass123',
+            "it's a comment"
+        );
+
+        $calls = $GLOBALS['__vps_test_place_buy_vps_calls'];
+        $this->assertCount(1, $calls);
+        $this->assertSame("ubuntu\\'--", $calls[0]['os']);
+        $this->assertSame("a\\'b.example.com", $calls[0]['hostname']);
+        $this->assertSame("it's a comment", $calls[0]['comment']);
+    }
+
+    /**
+     * Same for the admin variant, which /apiv2/admin also reaches with raw
+     * request values; non-scalar values (a field sent as field[]=...) become ''.
+     *
+     * @return void
+     */
+    public function testApiBuyVpsAdminPassesEscapedValuesToPlaceBuyVps(): void
+    {
+        $this->tf()->ima = 'admin';
+
+        api_buy_vps_admin(
+            "debian'",
+            1,
+            'kvm',
+            ["none' or 1=1"],
+            1,
+            1,
+            '12',
+            "d'.example.com",
+            '',
+            'testpass123',
+            5,
+            "admin's note"
+        );
+
+        $calls = $GLOBALS['__vps_test_place_buy_vps_calls'];
+        $this->assertCount(1, $calls);
+        $this->assertSame("debian\\'", $calls[0]['os']);
+        $this->assertSame('', $calls[0]['controlpanel']);
+        $this->assertSame("d\\'.example.com", $calls[0]['hostname']);
+        $this->assertSame("admin's note", $calls[0]['comment']);
+        $this->assertSame(5, $calls[0]['server']);
     }
 
     // ------------------------------------------------------------------

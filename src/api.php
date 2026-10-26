@@ -8,6 +8,28 @@
 */
 
 /**
+ * Escapes the order arguments these API functions hand to validate_buy_vps()/place_buy_vps().
+ *
+ * Those core functions interpolate several of them straight into SQL (coupon in the coupons
+ * lookups, os in the vps_templates lookups, hostname in the post-insert update) and rely on
+ * their caller having escaped them, as the web order pages do with real_escape(trim(...))
+ * (include/vps/buy_vps.php, include/adminlte/vps/order_vps.php). The SOAP wrapper and the
+ * /apiv2/admin REST wrapper pass the caller's values through untouched, so escape them here.
+ * rootpass and comment are deliberately not passed through this: like the web pages, they
+ * only reach SQL through make_insert_query(), which escapes them itself.
+ *
+ * @param array $args the order arguments, in any order
+ * @return array the same arguments trimmed and escaped, non-scalar values replaced by ''
+ */
+function vps_escape_buy_vps_args(array $args)
+{
+    $db = get_module_db('vps');
+    return array_map(function ($value) use ($db) {
+        return $db->real_escape(trim(is_scalar($value) ? (string)$value : ''));
+    }, $args);
+}
+
+/**
  * Checks if the parameters for your order pass validation and let you know if there are any errors. It will also give you information on the pricing breakdown.
  *
  * @param string $os file field from [get_vps_templates](#get_vps_templates)
@@ -26,6 +48,7 @@ function api_validate_buy_vps($os, $slices, $platform, $controlpanel, $period, $
 {
     //if (\MyAdmin\App::ima() == 'admin')
     $custid = get_custid(\MyAdmin\App::session()->account_id, 'vps');
+    [$os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon] = vps_escape_buy_vps_args([$os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon]);
     function_requirements('validate_buy_vps');
     $return = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, (bool)$ipv6only);
     $return['status_text'] = implode("\n", $return['errors']);
@@ -57,6 +80,7 @@ function api_validate_buy_vps($os, $slices, $platform, $controlpanel, $period, $
 function api_buy_vps($os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, $comment = '', $ipv6only = false)
 {
     $custid = get_custid(\MyAdmin\App::session()->account_id, 'vps');
+    [$os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon] = vps_escape_buy_vps_args([$os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon]);
     function_requirements('validate_buy_vps');
     $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, (bool)$ipv6only);
     $continue = $validation['continue'];
@@ -125,6 +149,7 @@ function api_buy_vps_admin($os, $slices, $platform, $controlpanel, $period, $loc
         $server = (int)$server;
     }
     $custid = get_custid(\MyAdmin\App::session()->account_id, 'vps');
+    [$os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon] = vps_escape_buy_vps_args([$os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon]);
     function_requirements('validate_buy_vps');
     $validation = validate_buy_vps($custid, $os, $slices, $platform, $controlpanel, $period, $location, $version, $hostname, $coupon, $rootpass, (bool)$ipv6only);
     $continue = $validation['continue'];
